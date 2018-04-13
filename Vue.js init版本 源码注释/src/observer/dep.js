@@ -1,6 +1,6 @@
 let uid = 0
 
-// 定义一个观察者队列
+// 定义一个观察者队列, 里面 暂存 watcher 数组。
 
 /**
  * A dep is an observable that can have multiple
@@ -26,6 +26,7 @@ Dep.target = null
  */
 
 Dep.prototype.addSub = function (sub) {
+  // 添加监听者
   this.subs.push(sub)
 }
 
@@ -36,6 +37,9 @@ Dep.prototype.addSub = function (sub) {
  */
 
 Dep.prototype.removeSub = function (sub) {
+  // 移除监听者。
+  // vue 内部重写了 Array.prototype 原型方法。
+  // 添加了 $remove , 删除数组中的 指定项。
   this.subs.$remove(sub)
 }
 
@@ -55,6 +59,7 @@ Dep.prototype.notify = function () {
   // stablize the subscriber list first
   var subs = this.subs.slice()
   for (var i = 0, l = subs.length; i < l; i++) {
+    // 触发所有监听者上的 更新方法。
     subs[i].update()
   }
 }
