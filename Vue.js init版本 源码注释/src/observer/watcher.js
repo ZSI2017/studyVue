@@ -168,7 +168,7 @@ Watcher.prototype.beforeGet = function () {
 
 Watcher.prototype.addDep = function (dep) {
   var id = dep.id
-  // 为 依赖添加一个Id ，
+  // 不同的监听器，维护不同的唯一 监听器数组。通过 id 来标识。
   if (!this.newDepIds[id]) {
     this.newDepIds[id] = true
     this.newDeps.push(dep)
