@@ -58,7 +58,10 @@ function runBatcherQueue (queue) {
     has[id] = null
     watcher.run()
     // in dev build, check and stop circular updates.
+    // 阻止死循环 更新。
     if (process.env.NODE_ENV !== 'production' && has[id] != null) {
+      // circular 记录每个watcher 循环更新的次数。
+      // 最大次数为 100;
       circular[id] = (circular[id] || 0) + 1
       if (circular[id] > config._maxUpdateCount) {
         warn(
@@ -92,14 +95,19 @@ export function pushWatcher (watcher) {
       userQueue.splice(queueIndex + 1, 0, watcher)
     } else {
       // push watcher into appropriate queue
+      // 区分 用户监听watch 和 定义的指令 更新，两个不同的队列。
       var q = watcher.user
         ? userQueue
         : queue
+      // 存放 队列长度。
       has[id] = q.length
+      // 需要更新的 watcher 放入到指定的队列中。
       q.push(watcher)
       // queue the flush
+      //
       if (!waiting) {
         waiting = true
+        //通过 nextTick 异步触发 flushBatcherQueue 刷新队列。
         nextTick(flushBatcherQueue)
       }
     }

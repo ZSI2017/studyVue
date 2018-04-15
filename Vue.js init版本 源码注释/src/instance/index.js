@@ -23,6 +23,7 @@ export default class Component {
     if (options.methods) {
       Object.keys(options.methods).forEach(key => {
         this[key] = options.methods[key].bind(this)
+        console.log(this[key])
       })
     }
     // 对data对象中所有属性都设置 setter/getter 监听器，

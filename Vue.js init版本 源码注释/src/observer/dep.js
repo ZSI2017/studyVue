@@ -10,6 +10,7 @@ let uid = 0
  */
 
 export default function Dep () {
+  // 使用 uid 来对 大量的 dep 实例进行区分。
   this.id = uid++
   this.subs = []
 }
@@ -59,7 +60,7 @@ Dep.prototype.notify = function () {
   // stablize the subscriber list first
   var subs = this.subs.slice()
   for (var i = 0, l = subs.length; i < l; i++) {
-    // 触发所有监听者上的 更新方法。
+    // 触发所有监听者watcher 实例上的 更新方法。
     subs[i].update()
   }
 }

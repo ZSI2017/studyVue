@@ -107,7 +107,7 @@ function genChildren (el) {
  // genNode 递归遍历里面的子对象，即子节点。
  // __flatten__() 扁平化方法，减少数组的嵌套层级。
  // 不管嵌套多深的 数组，都解析出来，通过 join(",")放在一个数组里面。
- // 
+ //
   return '__flatten__([' + el.children.map(genNode).join(',') + '])'
 }
 
