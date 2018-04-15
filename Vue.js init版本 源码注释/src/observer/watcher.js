@@ -155,8 +155,10 @@ Watcher.prototype.set = function (value) {
  */
 
 Watcher.prototype.beforeGet = function () {
+  // 当前 watcher 实例 赋值给 target
   Dep.target = this
   this.newDepIds = Object.create(null)
+  // 清空 newDeps 数组。
   this.newDeps.length = 0
 }
 
@@ -169,10 +171,14 @@ Watcher.prototype.beforeGet = function () {
 Watcher.prototype.addDep = function (dep) {
   var id = dep.id
   // 不同的监听器，维护不同的唯一 监听器数组。通过 id 来标识。
+  // 避免为同一属性，添加多个队列。
   if (!this.newDepIds[id]) {
     this.newDepIds[id] = true
+    // 将新的 dep 实例放在 newDeps 数组中。
     this.newDeps.push(dep)
     if (!this.depIds[id]) {
+      // 将当前的 watcher实例，放入到dep 内部维护的 this.subs;
+      // .
       dep.addSub(this)
     }
   }
@@ -203,6 +209,9 @@ Watcher.prototype.afterGet = function () {
 /**
  * Subscriber interface.
  * Will be called when a dependency changes.
+ *
+ * 订阅者 接口，当收集到依赖属性值发生改变时，触发update 事件。
+ *
  *
  * @param {Boolean} shallow
  */
@@ -237,6 +246,9 @@ Watcher.prototype.update = function (shallow) {
 
 Watcher.prototype.run = function () {
   if (this.active) {
+    // 触发get 函数，其中   this.getter.call(scope, scope)
+    // 如果传入的  exporFun 是 初始化时的 render 函数，
+    // 则这里就重新触发render 函数，重新由虚拟vnode 渲染到 真实DOM,
     var value = this.get()
     if (
       value !== this.value ||
@@ -266,6 +278,7 @@ Watcher.prototype.run = function () {
           throw e
         }
       } else {
+        // 然后调用传入 watcher的回调函数。
         this.cb.call(this.vm, value, oldValue)
       }
     }

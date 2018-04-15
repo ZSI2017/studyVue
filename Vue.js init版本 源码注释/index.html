@@ -1,16 +1,28 @@
-DOCTYPE html>
-<html>
-<head>
-  <title>测试post提交数据方法</title>
-</head>
-<body>
-  <center>
-      <form action="./second.html" method="post">
-          <p>用户名：<input type="text" name="name"/></p>
-          <p>密码：<input type="password" name="pwd"/></p>
-          <input type="submit" value="登录">
-
-      </form>
-  </center>
-</body>
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <script src="./dist/vue.js"></script>
+  </head>
+  <body>
+    <div id="app">
+      <h1>count:{{times}}</h1>
+      <button type="button" name="button" @click="btnEvents">点击自增</button>
+    </div>
+    <script>
+      var ap = new Vue({
+        el:"#app",
+        data:{
+           times:1
+        },
+        methods:{
+          btnEvents:function(){
+            alert("dfadsf")
+            this.times++;
+          }
+        }
+      })
+    </script>
+  </body>
 </html>
