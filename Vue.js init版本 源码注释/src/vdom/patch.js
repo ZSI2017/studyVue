@@ -147,6 +147,7 @@ export default function createPatchFunction (modules, api) {
   }
 
   function updateChildren (parentElm, oldCh, newCh, insertedVnodeQueue) {
+    // 保存 新 、旧 节点 开始,结束下标 和 开始,结束的元素。
     var oldStartIdx = 0, newStartIdx = 0
     var oldEndIdx = oldCh.length - 1
     var oldStartVnode = oldCh[0]
@@ -158,14 +159,14 @@ export default function createPatchFunction (modules, api) {
 
     while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
       if (isUndef(oldStartVnode)) {
-        oldStartVnode = oldCh[++oldStartIdx] // Vnode has been moved left
-      } else if (isUndef(oldEndVnode)) {
-        oldEndVnode = oldCh[--oldEndIdx]
-      } else if (sameVnode(oldStartVnode, newStartVnode)) {
+        oldStartVnode = oldCh[++oldStartIdx] // Vnode has been moved left  导致第一个 old 的 startVnode 不存在了。
+      } else if (isUndef(oldEndVnode)) {     //  Vnode has been moved right
+        oldEndVnode = oldCh[--oldEndIdx]     // old 的结束标签 向左移动
+      } else if (sameVnode(oldStartVnode, newStartVnode)) {  // old 开始节点   --  new 开始节点
         patchVnode(oldStartVnode, newStartVnode, insertedVnodeQueue)
         oldStartVnode = oldCh[++oldStartIdx]
         newStartVnode = newCh[++newStartIdx]
-      } else if (sameVnode(oldEndVnode, newEndVnode)) {
+      } else if (sameVnode(oldEndVnode, newEndVnode)) {      // old 结束节点   -- new 结束节点
         patchVnode(oldEndVnode, newEndVnode, insertedVnodeQueue)
         oldEndVnode = oldCh[--oldEndIdx]
         newEndVnode = newCh[--newEndIdx]
@@ -221,6 +222,7 @@ export default function createPatchFunction (modules, api) {
     // 覆盖 新 vnode的真实dom 引用。
     var elm = vnode.elm = oldVnode.elm, oldCh = oldVnode.children, ch = vnode.children
     // 进行对象比较。如果相等就直接返回
+    // debugger
     if (oldVnode === vnode) return
 
     //  比较 新旧 节点都不同，则 插入新节点，删除旧节点。
