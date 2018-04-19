@@ -208,29 +208,37 @@ export default function createPatchFunction (modules, api) {
         oldEndVnode = oldCh[--oldEndIdx]
         newStartVnode = newCh[++newStartIdx]
       } else {
-        // 如果没哟可以 复用的 节点。
+        // 如果没有可以 复用的 节点。
         if (isUndef(oldKeyToIdx)) oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx)
         // key  ---> idx
         idxInOld = oldKeyToIdx[newStartVnode.key]
         // 如果数组中 并不存在对应的key值。
         // 可以认为 是新添加的节点
         if (isUndef(idxInOld)) { // New element
-          //  对应把 newStartVnode 转化为 真实的dom 节点。
+          //  对应把 newStartVnode 转化为 真实的dom 节点。并插入到就节点的前面
           api.insertBefore(parentElm, createElm(newStartVnode, insertedVnodeQueue), oldStartVnode.elm)
+          // 新节点数组向右移动。
           newStartVnode = newCh[++newStartIdx]
         } else {
+          // 如果存在相同 key的节点。则复用这个节点
           elmToMove = oldCh[idxInOld]
           patchVnode(elmToMove, newStartVnode, insertedVnodeQueue)
+          // 并且把复用的节点 在旧数组中设置为 undefined,不再比较使用。
           oldCh[idxInOld] = undefined
+          // 然后把对应的真实DOM 插入到 旧节点的头部。
           api.insertBefore(parentElm, elmToMove.elm, oldStartVnode.elm)
+          // 新节点 向右移动。
           newStartVnode = newCh[++newStartIdx]
         }
       }
     }
+    // 任何一个子节点数组遍历完成以后。
     if (oldStartIdx > oldEndIdx) {
+    // 旧节点数组先遍历完成。将新节点插入。 如果复用了旧节点尾部，则插入到尾部前面，否则，插入到旧节点的尾部。
       before = isUndef(newCh[newEndIdx+1]) ? null : newCh[newEndIdx+1].elm
       addVnodes(parentElm, before, newCh, newStartIdx, newEndIdx, insertedVnodeQueue)
     } else if (newStartIdx > newEndIdx) {
+    // 如果是新节点数组先遍历完，删除旧节点剩余的部分
       removeVnodes(parentElm, oldCh, oldStartIdx, oldEndIdx)
     }
   }
