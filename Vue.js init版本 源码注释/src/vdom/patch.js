@@ -27,6 +27,7 @@ function sameVnode (vnode1, vnode2) {
 }
 
 function createKeyToOldIdx (children, beginIdx, endIdx) {
+  // 将节点是key 值 ，跟 子节点数组的下标 进行映射。 最后 返回 映射的对象。
   var i, map = {}, key
   for (i = beginIdx; i <= endIdx; ++i) {
     key = children[i].key
@@ -54,6 +55,8 @@ export default function createPatchFunction (modules, api) {
   }
 
   function createRmCb (childElm, listeners) {
+    // 返回函数 作为remove vnode 时所有 remove 钩子函数全都触发后的回调函数,
+    // 将对应的节点从父节点中删除，
     return function() {
       if (--listeners === 0) {
         var parent = api.parentNode(childElm)
@@ -65,9 +68,12 @@ export default function createPatchFunction (modules, api) {
   function createElm (vnode, insertedVnodeQueue) {
     var i, thunk, data = vnode.data
     if (isDef(data)) {
+      // 如果 存在 data.hook.init 钩子函数，在创建真实的dom节点之前，先调用init 回调
       if (isDef(i = data.hook) && isDef(i = i.init)) i(vnode)
       if (isDef(i = data.vnode)) {
+          // 保存 init 函数，修改后的 vnode 对象
           thunk = vnode
+
           vnode = i
       }
     }
@@ -91,13 +97,16 @@ export default function createPatchFunction (modules, api) {
       //  缺少 { init: updateClass },
       //  在创建的节点上 添加 style props eventListener  attrs 等等。
       //  完善新创建的 节点。 同样真实的节点引用保存在 vnode.elm 中。
+      //   触发 全局的 create 函数。
       for (i = 0; i < cbs.create.length; ++i) cbs.create[i](emptyNode, vnode)
       i = vnode.data.hook // Reuse variable
       if (isDef(i)) {
         if (i.create) i.create(emptyNode, vnode)
+        // 如果存在 insert钩子函数，则保存在批量删除的 数组中的。
         if (i.insert) insertedVnodeQueue.push(vnode)
       }
     } else {
+      // 文本节点，直接创建。
       elm = vnode.elm = api.createTextNode(vnode.text)
     }
     if (isDef(thunk)) thunk.elm = vnode.elm
@@ -107,15 +116,22 @@ export default function createPatchFunction (modules, api) {
 
   function addVnodes (parentElm, before, vnodes, startIdx, endIdx, insertedVnodeQueue) {
     for (; startIdx <= endIdx; ++startIdx) {
+      //遍历 vnodes 数组中 从 startIdx 到 endIdx 的节点， 将 vnode创建成 真实的dom节点，并插入到父节点当中。
+      //遍历
       api.insertBefore(parentElm, createElm(vnodes[startIdx], insertedVnodeQueue), before)
     }
   }
 
+
   function invokeDestroyHook (vnode) {
+   // 手动触发 destory 钩子回调.
     var i, j, data = vnode.data
     if (isDef(data)) {
+      // 先触发 当前 vnode 上挂载的 destory 回调
       if (isDef(i = data.hook) && isDef(i = i.destroy)) i(vnode)
+      // 然后，再触发全局的destory 钩子回调函数
       for (i = 0; i < cbs.destroy.length; ++i) cbs.destroy[i](vnode)
+      // 存在 子节点的话，递归触发 子节点中的 invokeDestoryHook
       if (isDef(i = vnode.children)) {
         for (j = 0; j < vnode.children.length; ++j) {
           invokeDestroyHook(vnode.children[j])
@@ -130,16 +146,23 @@ export default function createPatchFunction (modules, api) {
       var i, listeners, rm, ch = vnodes[startIdx]
       if (isDef(ch)) {
         if (isDef(ch.sel)) {
+          // 先调用 destory 钩子函数
           invokeDestroyHook(ch)
           listeners = cbs.remove.length + 1
+          // 利用 createRmCb 函数，生成remove的钩子函数的回调函数，操作真实的dom ,删除dom。
           rm = createRmCb(ch.elm, listeners)
+          //触发全局的 remove  回调函数
           for (i = 0; i < cbs.remove.length; ++i) cbs.remove[i](ch, rm)
+          //
           if (isDef(i = ch.data) && isDef(i = i.hook) && isDef(i = i.remove)) {
+            // 调用内部的 ch.data.hook.remove 钩子函数
             i(ch, rm)
           } else {
+            // 没有内部钩子，直接触发rm() ，删除节点。
             rm()
           }
         } else { // Text node
+          // 没有节点名，文本节点，直接删除
           api.removeChild(parentElm, ch.elm)
         }
       }
@@ -147,21 +170,25 @@ export default function createPatchFunction (modules, api) {
   }
 
   function updateChildren (parentElm, oldCh, newCh, insertedVnodeQueue) {
+    // 对于同级节点之间的新旧 更新，利用 不同方式的比较，达到复用节点的目的。
+    //
     // 保存 新 、旧 节点 开始,结束下标 和 开始,结束的元素。
     var oldStartIdx = 0, newStartIdx = 0
-    var oldEndIdx = oldCh.length - 1
-    var oldStartVnode = oldCh[0]
-    var oldEndVnode = oldCh[oldEndIdx]
-    var newEndIdx = newCh.length - 1
-    var newStartVnode = newCh[0]
-    var newEndVnode = newCh[newEndIdx]
+    var oldEndIdx = oldCh.length - 1        // 保存旧节点的尾部下标
+    var oldStartVnode = oldCh[0]           // 旧节点 的头部下标
+    var oldEndVnode = oldCh[oldEndIdx]     // 旧节点 头部
+    var newEndIdx = newCh.length - 1       // 新节点 尾部 下标
+    var newStartVnode = newCh[0]           // 新节点 头部
+    var newEndVnode = newCh[newEndIdx]     // 新节点 尾部
     var oldKeyToIdx, idxInOld, elmToMove, before
 
+    // 新旧子节点数组， 任何一方遍历完成，则循环结束
     while (oldStartIdx <= oldEndIdx && newStartIdx <= newEndIdx) {
       if (isUndef(oldStartVnode)) {
+        // 如果旧数组开头节点不存在，则后移
         oldStartVnode = oldCh[++oldStartIdx] // Vnode has been moved left  导致第一个 old 的 startVnode 不存在了。
       } else if (isUndef(oldEndVnode)) {     //  Vnode has been moved right
-        oldEndVnode = oldCh[--oldEndIdx]     // old 的结束标签 向左移动
+        oldEndVnode = oldCh[--oldEndIdx]     // 旧数组 的结束节点不存在，向左移动
       } else if (sameVnode(oldStartVnode, newStartVnode)) {  // old 开始节点   --  new 开始节点
         patchVnode(oldStartVnode, newStartVnode, insertedVnodeQueue)
         oldStartVnode = oldCh[++oldStartIdx]
@@ -171,19 +198,24 @@ export default function createPatchFunction (modules, api) {
         oldEndVnode = oldCh[--oldEndIdx]
         newEndVnode = newCh[--newEndIdx]
       } else if (sameVnode(oldStartVnode, newEndVnode)) { // Vnode moved right
-        patchVnode(oldStartVnode, newEndVnode, insertedVnodeQueue)
+        patchVnode(oldStartVnode, newEndVnode, insertedVnodeQueue)     // 复用oldStartVnode 节点，将其右移，插入到旧节点的尾部。
         api.insertBefore(parentElm, oldStartVnode.elm, api.nextSibling(oldEndVnode.elm))
         oldStartVnode = oldCh[++oldStartIdx]
         newEndVnode = newCh[--newEndIdx]
       } else if (sameVnode(oldEndVnode, newStartVnode)) { // Vnode moved left
         patchVnode(oldEndVnode, newStartVnode, insertedVnodeQueue)
-        api.insertBefore(parentElm, oldEndVnode.elm, oldStartVnode.elm)
+        api.insertBefore(parentElm, oldEndVnode.elm, oldStartVnode.elm)  // 复用 oldEndVnode 节点， 将其左移， 插入到旧节点的头部。
         oldEndVnode = oldCh[--oldEndIdx]
         newStartVnode = newCh[++newStartIdx]
       } else {
+        // 如果没哟可以 复用的 节点。
         if (isUndef(oldKeyToIdx)) oldKeyToIdx = createKeyToOldIdx(oldCh, oldStartIdx, oldEndIdx)
+        // key  ---> idx
         idxInOld = oldKeyToIdx[newStartVnode.key]
+        // 如果数组中 并不存在对应的key值。
+        // 可以认为 是新添加的节点
         if (isUndef(idxInOld)) { // New element
+          //  对应把 newStartVnode 转化为 真实的dom 节点。
           api.insertBefore(parentElm, createElm(newStartVnode, insertedVnodeQueue), oldStartVnode.elm)
           newStartVnode = newCh[++newStartIdx]
         } else {
