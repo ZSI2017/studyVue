@@ -234,7 +234,7 @@ export default function createPatchFunction (modules, api) {
     }
     // 任何一个子节点数组遍历完成以后。
     if (oldStartIdx > oldEndIdx) {
-    // 旧节点数组先遍历完成。将新节点插入。 如果复用了旧节点尾部，则插入到尾部前面，否则，插入到旧节点的尾部。
+    // 旧节点数组先遍历完成。将新节点插入。 如果旧节点尾部存在节点更新完成，则插入到尾部前面，否则，插入到旧节点的尾部。
       before = isUndef(newCh[newEndIdx+1]) ? null : newCh[newEndIdx+1].elm
       addVnodes(parentElm, before, newCh, newStartIdx, newEndIdx, insertedVnodeQueue)
     } else if (newStartIdx > newEndIdx) {
