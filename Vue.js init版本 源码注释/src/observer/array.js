@@ -30,11 +30,11 @@ export const arrayMethods = Object.create(arrayProto)
     // http://jsperf.com/closure-with-arguments
     var i = arguments.length
     var args = new Array(i)
-    // 把类数组 arguments 遍历出来，转换成数组。
+    // 把类数组 arguments 遍历出来，转换成数组。便于后面的apply 传递参数。
     while (i--) {
       args[i] = arguments[i]
     }
-    // 利用 数组的原型上的方法，来出来数据。
+    // 利用 数组的原型上的方法，计算出结果。
     var result = original.apply(this, args)
     // 得到 对应data 里面的监听器对象实例
     var ob = this.__ob__

@@ -94,8 +94,10 @@ export function Observer (value) {
   ```
   const arrayProto = Array.prototype
   export const arrayMethods = Object.create(arrayProto)
-  
+
   ```
+  `arrayProto`
+
 
 
   - 不能使用，同样利用`Object.defineProperty`添加访问器属性，没有使用到`getter/setter`属性，这里添加的是实例属性，会覆盖Array 上的同名原型属性，达到了重写数组方法的目的
