@@ -27,10 +27,11 @@ export function initMixin (Vue: Class<Component>) {
     }
 
     // a flag to avoid this being observed
-    // 通过 _isVue 在对象上做标识，
+    // 通过 _isVue 在对象上做标识，防止后面 内部变量被转换为 setter/getter 的形式。
     vm._isVue = true
     // merge options
     if (options && options._isComponent) {
+      // 优化内部的组件实例。
       // optimize internal component instantiation
       // since dynamic options merging is pretty slow, and none of the
       // internal component options needs special treatment.

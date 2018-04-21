@@ -24,6 +24,7 @@ if (process.env.NODE_ENV !== 'production') {
     )
   }
 
+ // 判断当前浏览器是否支持 Proxy 。
   const hasProxy =
     typeof Proxy !== 'undefined' && isNative(Proxy)
 
