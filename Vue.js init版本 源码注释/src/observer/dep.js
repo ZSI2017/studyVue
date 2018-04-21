@@ -44,6 +44,7 @@ Dep.prototype.removeSub = function (sub) {
   this.subs.$remove(sub)
 }
 
+
 /**
  * Add self as a dependency to the target watcher.
  */
