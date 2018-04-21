@@ -174,4 +174,95 @@ export function Observer (value) {
 
 ### 对象类型的转换  ###
 
-  
+ 对象类型的转换`this.walk()`,利用`Object.keys`遍历对象中的属性。
+ ```
+   Observer.prototype.walk = function (obj) {
+     var keys = Object.keys(obj)
+     for (var i = 0, l = keys.length; i < l; i++) {
+       this.convert(keys[i], obj[keys[i]])
+     }
+   }
+ ```
+
+ **将每个属性转化为setter/getter的形式，从而转换对象。** 在`defineReactive`函数中，就是最关键的实现部分。
+```
+ export function defineReactive (obj, key, val) {
+
+   // 转换为活性
+   // 重新定义当前`this.value`对象上的所有属性以及属性值。
+   // 创建一个观察者数组，
+   var dep = new Dep()
+   /**
+    *  ES5 Object.getOwnPropertyDescriptor(),返回指定对象上一个自有属性对应的属性描述符。
+    *  属性描述符是一个记录，组成：
+    *   如果是 访问器属性，则 返回的对象的属性有
+    *     configurable,
+    *     enumerable（对象属性可以被枚举时，为true）,
+    *     get（获取该属性的访问器函数） 和
+    *     set（获取该属性的设置 器函数）
+    *   如果是数据属性，则 有
+    *     configurable(当且仅当对象的属性描述可以被改变或者属性可被删除时，为true),
+    *      enumerable,
+    *      writable(当且仅仅当属性的值可以改变时为true),
+    *      value(该属性的值)
+    */
+   var property = Object.getOwnPropertyDescriptor(obj, key)
+    //当且仅当对象的属性描述可以被改变或者属性可被删除时
+   if (property && property.configurable === false) {
+     return
+   }
+   // 提供提前设定好的 getter(访问器函数)  和 setter (设置器函数）；
+   // cater for pre-defined getter/setters
+   var getter = property && property.get
+   var setter = property && property.set
+
+   var childOb = observe(val)
+   // 重新定义对象的属性类型
+   Object.defineProperty(obj, key, {
+     enumerable: true,
+     configurable: true,
+     get: function reactiveGetter () {
+       var value = getter ? getter.call(obj) : val
+       // Watcher构造函数中
+       // 获取 watch 监听的表达式的值时，
+       //首先会把watcher 实例 赋值给 Dep.target
+       // 执行表达式，获取被observer 监听的值时，会触发这里的get函数，
+       // 将dep 实例自身，传入到Dep.target 对应的watch的addDep 方法中，从而添加到Subs 数组中，完成依赖收集。
+       // 表达式执行完成后，Dep.target = null ,清除 watch 实例。
+       if (Dep.target) {
+         dep.depend()
+         if (childOb) {
+           childOb.dep.depend()
+         }
+         if (isArray(value)) {
+           for (var e, i = 0, l = value.length; i < l; i++) {
+             e = value[i]
+             e && e.__ob__ && e.__ob__.dep.depend()
+           }
+         }
+       }
+       return value
+     },
+     set: function reactiveSetter (newVal) {
+       // 通过get 回调收集依赖后，set 方法触发setter 方法或者直接赋值，改变属性值
+       同时，为新添加的值，进行数据转换，传入到`observe`中监听
+       // 最后，通过 `notify()`通知所有订阅者。
+       var value = getter ? getter.call(obj) : val
+       if (newVal === value) {
+         // value 值没发生改变，则直接返回
+         return
+       }
+       // 通过 setter 设置器或者直接赋值
+       if (setter) {
+         setter.call(obj, newVal)
+       } else {
+         val = newVal
+       }
+       // 为 newValue 上的所有属性都加上监听器
+       childOb = observe(newVal)
+       // 通知观察者队列中所有项
+       dep.notify()
+     }
+   })
+ }
+ ```
