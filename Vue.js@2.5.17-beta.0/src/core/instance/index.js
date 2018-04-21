@@ -13,7 +13,7 @@ function Vue (options) {
     // 如果没有使用 new 方式，调用 Vue 构造函数，里面的this 就会指向 全局（winodw) 或者 undefined(严格模式下)
     warn('Vue is a constructor and should be called with the `new` keyword')
   }
-  // 初始化 
+  // 初始化
   this._init(options)
 }
 
