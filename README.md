@@ -7,6 +7,6 @@
 
 ## 源码解析 ##
 
-- [数据代理](./_proxy.md)
+- [数据代理](./docs/_proxy.md)
 
-- [响应式](./_observer.md)
+- [响应式](./docs/_observer.md)
