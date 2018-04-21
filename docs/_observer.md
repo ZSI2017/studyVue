@@ -74,7 +74,7 @@ export function Observer (value) {
 
  ```
  是否能够使用数组上的隐式原型：
-  - 可以使用， 后面通过修改`target.__proto__`的值，改变原型链，一次性重写Array上的原型方法
+  - 可以使用， 后面通过修改`target.__proto__`的值，改变原型链，重写`target`指向的原型
 
   ```
   function protoAugment (target, src) {
@@ -84,23 +84,7 @@ export function Observer (value) {
   }
   ```
 
-  接着调用这个方法
-  ```
-  augment(value, arrayMethods, arrayKeys)
-  ```
-
-  重点，这里重写了数组的方法，包括`'push','pop','shift','unshift','splice','sort','reverse'`等常用的数组方法。
-  重写的对象，不是一个Array对象，而是通过`Object.create`创建的没有length 属性的Array对象
-  ```
-  const arrayProto = Array.prototype
-  export const arrayMethods = Object.create(arrayProto)
-
-  ```
-  `arrayProto`
-
-
-
-  - 不能使用，同样利用`Object.defineProperty`添加访问器属性，没有使用到`getter/setter`属性，这里添加的是实例属性，会覆盖Array 上的同名原型属性，达到了重写数组方法的目的
+  - 不能使用，同样利用`Object.defineProperty`添加访问器属性，没有使用到`getter/setter`属性，这里添加的是实例属性，会覆盖Array实例上的同名原型属性，达到了重写数组方法的目的
   ```
   function copyAugment (target, src, keys) {
     for (var i = 0, l = keys.length; i < l; i++) {
@@ -110,3 +94,84 @@ export function Observer (value) {
   }
 
   ```
+
+  接着调用这个方法
+  ```
+  augment(value, arrayMethods, arrayKeys)
+  ```
+
+**重点是`arrayMethods`这个对象**，这里重写了数组的方法，包括`'push','pop','shift','unshift','splice','sort','reverse'`等常用的数组方法。
+  重写的`arrayMethods`对象，不是一个Array对象，可以看成是通过`Object.create`创建的没有length 属性的Array对象，因为这个对象可以访问Array.prototype。
+  ```
+  const arrayProto = Array.prototype
+  export const arrayMethods = Object.create(arrayProto)
+
+  ```
+  `arrayProto`指向了Array对象的原型，方便后面利用原型方法，操作数组，得到结果。
+
+  ```
+  ;[
+    'push',
+    'pop',
+    'shift',
+    'unshift',
+    'splice',
+    'sort',
+    'reverse'
+  ]
+  .forEach(function (method) {
+    // cache original method
+    // 缓存数组的原型方法。
+    var original = arrayProto[method]
+    // 在数组对象的上定义属性方法。
+    def(arrayMethods, method, function mutator () {
+      // avoid leaking arguments:
+      // 避免漏掉 传入的参数。
+      // http://jsperf.com/closure-with-arguments
+      var i = arguments.length
+      var args = new Array(i)
+      // 把类数组 arguments 遍历出来，转换成数组。便于后面的apply 传递参数。
+      while (i--) {
+        args[i] = arguments[i]
+      }
+      // 利用 数组的原型上的方法，计算出结果。
+      var result = original.apply(this, args)
+      // 得到 对应data 里面的监听器对象实例
+      var ob = this.__ob__
+      var inserted
+      switch (method) {
+        case 'push':
+          inserted = args
+          break
+        case 'unshift':
+          inserted = args
+          break
+        case 'splice':
+          inserted = args.slice(2)
+          break
+      }
+      // 检查到有即将插入的数组项，如果数组项是一个可扩展的对象，同样在上面加上对应的监听器
+      if (inserted) ob.observeArray(inserted)
+      // notify change
+      //  遍历 this.subs 监听器队列，也就是hi观察者队列，触发所有的监听器上的更新事件。
+      ob.dep.notify()
+      return result
+    })
+  })
+
+  ```
+
+  上面代码，通过遍历预设的方法数组，重写数组方法。
+  `original`得到Array原本的数组方法。然后在`arrayMethods`对象的基础上，定义对应的数组方法，也就是`def`函数里面的内容。
+
+  拿到传入的参数`arguments`，循环遍历参数，转为真实的数组，
+  `original.apply(this,args)`触发Array上对应的原型方法，返回结果。后面的`switch`，为了检测如果是`push`,`unshift`,`splice`这些能够向数组插入数据的方法，则同样监听插入的参数。
+
+  `ob.dep.notify()`，拿到Observer对象的实例后，`notify()`函数触发subs数组中所有`watcher`实例的update()方法，更新相关依赖。
+
+  回到`Observer`构造函数里面，刚才是为数组本身添加变异的数组方法，现在`this.observerArray()`方法，遍历数组中每一项，并对每一项进行转换，使用的转换方法，也是`observer`函数。
+
+
+### 对象类型的转换  ###
+
+  
