@@ -226,7 +226,7 @@ export default function (Vue) {
    * special getter/setters
    */
 
-  function noop () {}
+  function noop () {}   // 空函数，方便后面赋值。
   Vue.prototype._initComputed = function () {
     var computed = this.$options.computed
     if (computed) {
@@ -243,29 +243,35 @@ export default function (Vue) {
         } else {
           def.get = userDef.get
             ? userDef.cache !== false
-              ? makeComputedGetter(userDef.get, this)
+              ? makeComputedGetter(userDef.get, this)  // 构建 getter 回调。
               : bind(userDef.get, this)  // 这是使用 非原生的bind ,使得setter/getter 的函数上下文指向vue实例。
             : noop
           def.set = userDef.set
             ? bind(userDef.set, this)
             : noop
         }
+        // 将 computed 对象中的属性，定义到 this vue实例上面
         Object.defineProperty(this, key, def)
       }
     }
   }
 
   function makeComputedGetter (getter, owner) {
+    // 实例化一个 Watcher 对象。
+    // 传入 lazy:true 参数，表示 computed 计算属性，会利用缓存数据。
     var watcher = new Watcher(owner, getter, null, {
       lazy: true
     })
+
     return function computedGetter () {
       if (watcher.dirty) {
         watcher.evaluate()
       }
+      // 收集依赖。添加到依赖数组里面。
       if (Dep.target) {
         watcher.depend()
       }
+      // 返回 getter函数执行后的 结果
       return watcher.value
     }
   }
