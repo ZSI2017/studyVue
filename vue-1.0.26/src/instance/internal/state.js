@@ -20,6 +20,7 @@ export default function (Vue) {
    * Accessor for `$data` property, since setting $data
    * requires observing the new object and updating
    * proxied properties.
+   * 设置 $data 设置，存取的时候，触发对应的 getter/setter 回调。
    */
 
   Object.defineProperty(Vue.prototype, '$data', {
@@ -58,6 +59,7 @@ export default function (Vue) {
     var el = options.el
     var props = options.props
     if (props && !el) {
+
       process.env.NODE_ENV !== 'production' && warn(
         'Props will not be compiled if no `el` option is ' +
         'provided at instantiation.',
@@ -65,7 +67,9 @@ export default function (Vue) {
       )
     }
     // make sure to convert string selectors into element now
+    // 查询到 dom 节点的引用。
     el = options.el = query(el)
+    // nodeType === 1  表示为一个元素节点
     this._propsUnlinkFn = el && el.nodeType === 1 && props
       // props must be linked in proper scope if inside v-for
       ? compileAndLinkProps(this, el, props, this._scope)
@@ -77,9 +81,13 @@ export default function (Vue) {
    */
 
   Vue.prototype._initData = function () {
+    // 这里dataFn 对应 mergedInstanceDataFn 函数
     var dataFn = this.$options.data
+    // 调用dataFn，获取到 data 对象。
     var data = this._data = dataFn ? dataFn() : {}
+
     if (!isPlainObject(data)) {
+      // data 必须为 对象类型。
       data = {}
       process.env.NODE_ENV !== 'production' && warn(
         'data functions should return an object.',
@@ -97,7 +105,9 @@ export default function (Vue) {
       // 1. it's not already defined as a prop
       // 2. it's provided via a instantiation option AND there are no
       //    template prop present
+      //    props 中没有这个 key 值，或者 不存在props.
       if (!props || !hasOwn(props, key)) {
+        // 转换为 setter/getter 形式。
         this._proxy(key)
       } else if (process.env.NODE_ENV !== 'production') {
         warn(
@@ -110,6 +120,7 @@ export default function (Vue) {
       }
     }
     // observe data
+    //  对 data中的所有属性，进行监听。
     observe(data, this)
   }
 
@@ -122,6 +133,7 @@ export default function (Vue) {
   Vue.prototype._setData = function (newData) {
     newData = newData || {}
     var oldData = this._data
+    // 为 this._data 设置新值。
     this._data = newData
     var keys, key, i
     // unproxy keys not present in new data
@@ -130,6 +142,8 @@ export default function (Vue) {
     while (i--) {
       key = keys[i]
       if (!(key in newData)) {
+        // 新data 对象中没有该属性，
+        // 则可以解除 proxy .
         this._unproxy(key)
       }
     }
@@ -139,8 +153,12 @@ export default function (Vue) {
     i = keys.length
     while (i--) {
       key = keys[i]
+      // 新 data 中 加入的属性，
+      // this Vue 实例上 代理了 this._data 上的属性
+      //
       if (!hasOwn(this, key)) {
         // new property
+        // 新属性，转换为 setter/getter形式。
         this._proxy(key)
       }
     }
@@ -152,11 +170,14 @@ export default function (Vue) {
   /**
    * Proxy a property, so that
    * vm.prop === vm._data.prop
-   *
+   * 利用 Object.defineProperty 属性，代理 data 中的 属性，
+   * 相应的可以得到 this.prop === this._data.prop 属性。
    * @param {String} key
    */
 
   Vue.prototype._proxy = function (key) {
+    // 对象上当的属性 通过 setter/getter 进行代理，
+    // 直接代理到this上，作为实例属性。
     if (!isReserved(key)) {
       // need to store ref to self here
       // because these getter/setters might
@@ -170,6 +191,7 @@ export default function (Vue) {
           return self._data[key]
         },
         set: function proxySetter (val) {
+          // 触发setter 设置器时，就可以直接为 _data 赋值。
           self._data[key] = val
         }
       })
@@ -184,6 +206,7 @@ export default function (Vue) {
 
   Vue.prototype._unproxy = function (key) {
     if (!isReserved(key)) {
+      //非 $ 或者 _ 开头的属性，使用 delete 直接删除。
       delete this[key]
     }
   }
@@ -214,13 +237,14 @@ export default function (Vue) {
           configurable: true
         }
         if (typeof userDef === 'function') {
+          // 只传入一个 函数，默认为 getter
           def.get = makeComputedGetter(userDef, this)
           def.set = noop
         } else {
           def.get = userDef.get
             ? userDef.cache !== false
               ? makeComputedGetter(userDef.get, this)
-              : bind(userDef.get, this)
+              : bind(userDef.get, this)  // 这是使用 非原生的bind ,使得setter/getter 的函数上下文指向vue实例。
             : noop
           def.set = userDef.set
             ? bind(userDef.set, this)
@@ -256,6 +280,7 @@ export default function (Vue) {
     var methods = this.$options.methods
     if (methods) {
       for (var key in methods) {
+        // 绑定 methods 方法中的 作用域 到当前的实例中
         this[key] = bind(methods[key], this)
       }
     }

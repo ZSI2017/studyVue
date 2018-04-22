@@ -9,6 +9,7 @@ export const inBrowser =
   Object.prototype.toString.call(window) !== '[object Object]'
 
 // detect devtools
+// 通过 __VUE_DEVTOOLS_GLOBAL_HOOK__ 来探测浏览器是否安装了 devtools 调试插件。
 export const devtools = inBrowser && window.__VUE_DEVTOOLS_GLOBAL_HOOK__
 
 // UA sniffing for working around browser-specific quirks

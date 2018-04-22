@@ -9,6 +9,8 @@ import { removeWithTransition } from '../transition/index'
  *
  * @param {String|Element} el
  * @return {Element}
+ *
+ * 通过 document.queyrSelector() 获取dom 节点引用。
  */
 
 export function query (el) {

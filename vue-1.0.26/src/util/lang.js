@@ -11,6 +11,7 @@
 
 export function set (obj, key, val) {
   if (hasOwn(obj, key)) {
+    // 如果 obj　上本来就有这个属性，就直接覆盖。
     obj[key] = val
     return
   }
@@ -20,9 +21,11 @@ export function set (obj, key, val) {
   }
   var ob = obj.__ob__
   if (!ob) {
+    // 该对象上不 存在Observer 实例，则表示只是普通对象的合并。
     obj[key] = val
     return
   }
+  // 对象上 存在 Observer 实例，则在merge 更新的时候，通过所有的依赖。
   ob.convert(key, val)
   ob.dep.notify()
   if (ob.vms) {
@@ -75,6 +78,8 @@ var hasOwnProperty = Object.prototype.hasOwnProperty
  * @param {String} key
  * @return {Boolean}
  */
+// for in 遍历时，检查 是否 存在该自有属性，而不是从原型链上获取的。
+//
 export function hasOwn (obj, key) {
   return hasOwnProperty.call(obj, key)
 }
@@ -185,6 +190,7 @@ function toUpper (_, c) {
 /**
  * Hyphenate a camelCase string.
  *
+ *  驼峰式命名 转换为 全为小写的下划线式命名。
  * @param {String} str
  * @return {String}
  */
@@ -218,17 +224,18 @@ export function classify (str) {
  *
  * @param {Function} fn
  * @param {Object} ctx
- * @return {Function}
+ * @return {Function} 返回函数，
  */
 
 export function bind (fn, ctx) {
+  // 返回一个闭包
   return function (a) {
     var l = arguments.length
     return l
       ? l > 1
-        ? fn.apply(ctx, arguments)
-        : fn.call(ctx, a)
-      : fn.call(ctx)
+        ? fn.apply(ctx, arguments) // 传入参数比较多,伪数组作为第二个参数。使用 apply
+        : fn.call(ctx, a)         // 传入参数为一个，使用 call
+      : fn.call(ctx) // 未传入参数，直接使用call
   }
 }
 
