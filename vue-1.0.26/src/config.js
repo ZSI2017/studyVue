@@ -38,6 +38,7 @@ const config = {
   /**
    * Whether to allow devtools inspection.
    * Disabled by default in production builds.
+   * 在非生产环境下，才会考虑 devtools 调试。
    */
 
   devtools: process.env.NODE_ENV !== 'production',

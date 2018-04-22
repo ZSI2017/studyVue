@@ -1,4 +1,4 @@
-import { warn } from './debug'
+ import { warn } from './debug'
 import { resolveAsset } from './options'
 import { getBindAttr } from './dom'
 

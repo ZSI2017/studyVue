@@ -81,6 +81,7 @@ export default function (Vue) {
     }
 
     // merge options.
+    // merge  构造函数中的 options ，传入的 options
     options = this.$options = mergeOptions(
       this.constructor.options,
       options,

@@ -81,12 +81,15 @@ strats.data = function (parentVal, childVal, vm) {
   } else if (parentVal || childVal) {
     return function mergedInstanceDataFn () {
       // instance merge
+      // 如果 data 的值对应的是 function,则直接调用，获取返回结果
+      // 如果不是，则直接返回
       var instanceData = typeof childVal === 'function'
         ? childVal.call(vm)
         : childVal
       var defaultData = typeof parentVal === 'function'
         ? parentVal.call(vm)
         : undefined
+       // 如果存在 传入的options,进行对象的合并。
       if (instanceData) {
         return mergeData(instanceData, defaultData)
       } else {
@@ -102,6 +105,7 @@ strats.data = function (parentVal, childVal, vm) {
 
 strats.el = function (parentVal, childVal, vm) {
   if (!vm && childVal && typeof childVal !== 'function') {
+    //When used in Vue.extend, a function must be provided
     process.env.NODE_ENV !== 'production' && warn(
       'The "el" option should be a function ' +
       'that returns a per-instance value in component ' +
@@ -112,6 +116,7 @@ strats.el = function (parentVal, childVal, vm) {
   }
   var ret = childVal || parentVal
   // invoke the element factory if this is instance merge
+  //  是函数 ，直接返回调用后的结果。
   return vm && typeof ret === 'function'
     ? ret.call(vm)
     : ret
@@ -119,6 +124,7 @@ strats.el = function (parentVal, childVal, vm) {
 
 /**
  * Hooks and param attributes are merged as arrays.
+ * merge的时候，将parentVal,和 childVal  合并成一个数组。
  */
 
 strats.init =
@@ -171,6 +177,7 @@ strats.events = function (parentVal, childVal) {
   if (!childVal) return parentVal
   if (!parentVal) return childVal
   var ret = {}
+  // parentVal 中的 属性复制到 ret中去。
   extend(ret, parentVal)
   for (var key in childVal) {
     var parent = ret[key]
@@ -178,6 +185,8 @@ strats.events = function (parentVal, childVal) {
     if (parent && !isArray(parent)) {
       parent = [parent]
     }
+    // merge时，将两对象中相同的属性，合并到一个数组里面。
+    // 而不是覆盖。
     ret[key] = parent
       ? parent.concat(child)
       : [child]
@@ -195,6 +204,7 @@ strats.computed = function (parentVal, childVal) {
   if (!childVal) return parentVal
   if (!parentVal) return childVal
   var ret = Object.create(null)
+  // 进行 对象属性的覆盖。
   extend(ret, parentVal)
   extend(ret, childVal)
   return ret
@@ -219,6 +229,7 @@ var defaultStrat = function (parentVal, childVal) {
 
 function guardComponents (options) {
   if (options.components) {
+    // 如果传入的 components 选项是 数组类型的，则需要进行存储转换。
     var components = options.components =
       guardArrayAssets(options.components)
     var ids = Object.keys(components)
@@ -228,6 +239,7 @@ function guardComponents (options) {
     }
     for (var i = 0, l = ids.length; i < l; i++) {
       var key = ids[i]
+      // 检查 传入的组件值，是否为 内部的或者 原始的 html 标签
       if (commonTagRE.test(key) || reservedTagRE.test(key)) {
         process.env.NODE_ENV !== 'production' && warn(
           'Do not use built-in or reserved HTML elements as component ' +
@@ -237,11 +249,15 @@ function guardComponents (options) {
       }
       // record a all lowercase <-> kebab-case mapping for
       // possible custom element case error warning
+      //  记录下所有的  组件 ，方便后面报错时 使用。
+      // lowercase <-> kebab-case
       if (process.env.NODE_ENV !== 'production') {
         map[key.replace(/-/g, '').toLowerCase()] = hyphenate(key)
       }
+      // 获取到内部 组件值，
       def = components[key]
       if (isPlainObject(def)) {
+        // 利用 Vue.extend 转换为 Vue 构造函数的 子类（subClass）
         components[key] = Vue.extend(def)
       }
     }
@@ -261,11 +277,14 @@ function guardProps (options) {
   if (isArray(props)) {
     options.props = {}
     i = props.length
+    // 遍历 props 数组
     while (i--) {
       val = props[i]
       if (typeof val === 'string') {
+
         options.props[val] = null
       } else if (val.name) {
+        // 获取 val.name 作为键值，保存val
         options.props[val.name] = val
       }
     }
@@ -285,6 +304,7 @@ function guardProps (options) {
  * Guard an Array-format assets option and converted it
  * into the key-value Object format.
  *
+ *  以数组中的  asset.name || asset.id 为键值，转化为 对象。
  * @param {Object|Array} assets
  * @return {Object}
  */
@@ -333,6 +353,7 @@ export function mergeOptions (parent, child, vm) {
   var options = {}
   var key
   if (child.extends) {
+    // merge extends 上的 options 。
     parent = typeof child.extends === 'function'
       ? mergeOptions(parent, child.extends.options, vm)
       : mergeOptions(parent, child.extends, vm)
@@ -340,6 +361,7 @@ export function mergeOptions (parent, child, vm) {
   if (child.mixins) {
     for (var i = 0, l = child.mixins.length; i < l; i++) {
       var mixin = child.mixins[i]
+      // 合并mixin 上的 options
       var mixinOptions = mixin.prototype instanceof Vue
         ? mixin.options
         : mixin
