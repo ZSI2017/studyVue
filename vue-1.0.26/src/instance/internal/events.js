@@ -75,6 +75,7 @@ export default function (Vue) {
         }
       } else {
         // register(this,'$on',key,value)
+        // 通过 $on() ,为 events 中每个属性，注册事件回调，
         register(vm, action, key, handlers)
       }
     }
@@ -90,12 +91,13 @@ export default function (Vue) {
    * @param {Object} [options]
    *
    *     registerCallbacks(this, '$on', options.events)
-   *     register(vm, action, key, handlers)
+   *       // register(this,'$on',key,value)
    */
 
   function register (vm, action, key, handler, options) {
     var type = typeof handler
     if (type === 'function') {
+      // events 事件对象中 回调。
       vm[action](key, handler, options)
     } else if (type === 'string') {
       var methods = vm.$options.methods
