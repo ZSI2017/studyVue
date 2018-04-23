@@ -96,6 +96,7 @@ export default function (Vue) {
     this._data = {}
 
     // call init hook
+    // 触发 init 钩子函数。
     this._callHook('init')
 
     // initialize data observation and scope inheritance.
