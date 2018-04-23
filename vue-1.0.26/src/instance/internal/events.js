@@ -5,6 +5,7 @@ import {
   warn
 } from '../../util/index'
 
+// 正则验证 事件绑定。
 const eventRE = /^v-on:|^@/
 
 export default function (Vue) {
@@ -12,6 +13,8 @@ export default function (Vue) {
    * Setup the instance's option events & watchers.
    * If the value is a string, we pull it from the
    * instance's methods by name.
+   *
+   * 初始化 options 里面的  events watchers。
    */
 
   Vue.prototype._initEvents = function () {
@@ -76,12 +79,15 @@ export default function (Vue) {
 
   /**
    * Helper to register an event/watch callback.
-   *
+   * 注册一个 event/watch  回调。
    * @param {Vue} vm
    * @param {String} action
    * @param {String} key
    * @param {Function|String|Object} handler
    * @param {Object} [options]
+   *
+   *     registerCallbacks(this, '$on', options.events)
+   *     register(vm, action, key, handlers)
    */
 
   function register (vm, action, key, handler, options) {
@@ -163,13 +169,16 @@ export default function (Vue) {
 
   /**
    * Trigger all handlers for a hook
-   *
+   *  触发钩子函数。
    * @param {String} hook
    */
 
   Vue.prototype._callHook = function (hook) {
+    //触发之前，调用 pre--hook钩子函数。
     this.$emit('pre-hook:' + hook)
+    // 拿到触发 对应钩子函数的 回调。
     var handlers = this.$options[hook]
+    // 遍历 触发 handlers 中的 回调函数。
     if (handlers) {
       for (var i = 0, j = handlers.length; i < j; i++) {
         handlers[i].call(this)

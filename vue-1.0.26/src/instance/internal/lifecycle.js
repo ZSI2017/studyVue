@@ -23,9 +23,12 @@ export default function (Vue) {
   Vue.prototype._updateRef = function (remove) {
     var ref = this.$options._ref
     if (ref) {
+      // $refs  父组件里面 通过 v-ref 注册的id, 直接访问到子组件的的实例 。
+      // v-ref 与 v-for  一起使用，parenet.$refs.id 将会返回一个数组。
       var refs = (this._scope || this._context).$refs
       if (remove) {
         if (refs[ref] === this) {
+          // 移除 ref id 对应的 $refs 的引用。
           refs[ref] = null
         }
       } else {
