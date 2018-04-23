@@ -60,6 +60,8 @@ export default function (Vue) {
    * @param {Vue} vm
    * @param {String} action
    * @param {Object} hash
+   *
+   *     registerCallbacks(this, '$on', options.events)
    */
 
   function registerCallbacks (vm, action, hash) {
@@ -72,6 +74,7 @@ export default function (Vue) {
           register(vm, action, key, handlers[i])
         }
       } else {
+        // register(this,'$on',key,value)
         register(vm, action, key, handlers)
       }
     }
