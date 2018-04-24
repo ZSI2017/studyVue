@@ -100,16 +100,20 @@ export default function (Vue) {
     this._callHook('init')
 
     // initialize data observation and scope inheritance.
+    // 初始化 props,meta,methods,data,computed;
     this._initState()
 
     // setup event system and option events.
+    // 初始化 events 选项中的事件。
     this._initEvents()
 
     // call created hook
+    // 初始化完成后 ， 调用 created 钩子函数。
     this._callHook('created')
 
     // if `el` option is passed, start compilation.
-    if (options.el) {
+    if (options.el)
+      // 最后开始编译 html 
       this.$mount(options.el)
     }
   }

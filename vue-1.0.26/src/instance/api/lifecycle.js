@@ -7,20 +7,25 @@ export default function (Vue) {
    * process. The passed in `el` can be a selector string, an
    * existing Element, or a DocumentFragment (for block
    * instances).
-   *
+   *   如果传入的选项中 存在 el ,就立刻进入编译，
+   *   否则就会通过 $mount  实现html 的编译。
+   *  设置 实例 对象的元素，开始编译html 模板，
    * @param {Element|DocumentFragment|string} el
    * @public
    */
 
   Vue.prototype.$mount = function (el) {
     if (this._isCompiled) {
+      // 标识，只能被编译 一次。
       process.env.NODE_ENV !== 'production' && warn(
         '$mount() should be called only once.',
         this
       )
       return
     }
+    // 利用 querySelector 找到对应 dom 节点的引用。
     el = query(el)
+    // 如果不存在，就创建一个 
     if (!el) {
       el = document.createElement('div')
     }

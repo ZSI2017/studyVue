@@ -23,6 +23,7 @@ export default function (Vue) {
       registerComponentEvents(this, options.el)
     }
     registerCallbacks(this, '$on', options.events)
+    // 利用 api/data.js 里面注册的 $watch 接口，监听data事件。
     registerCallbacks(this, '$watch', options.watch)
   }
 
@@ -57,9 +58,9 @@ export default function (Vue) {
   /**
    * Register callbacks for option events and watchers.
    *
-   * @param {Vue} vm
-   * @param {String} action
-   * @param {Object} hash
+   * @param {Vue} vm        当前vue 实例
+   * @param {String} action   $on ， $watch，
+   * @param {Object} hash     options.events or options.watch  对象。
    *
    *     registerCallbacks(this, '$on', options.events)
    */
@@ -70,6 +71,7 @@ export default function (Vue) {
     for (key in hash) {
       handlers = hash[key]
       if (isArray(handlers)) {
+        // 事件句柄为数组，可以在同一events 上注册多个事件。
         for (i = 0, j = handlers.length; i < j; i++) {
           register(vm, action, key, handlers[i])
         }
@@ -98,13 +100,18 @@ export default function (Vue) {
     var type = typeof handler
     if (type === 'function') {
       // events 事件对象中 回调。
+      // eg ：  vm[$on](events,handler,options)；
       vm[action](key, handler, options)
     } else if (type === 'string') {
+      // can also use a string for methods
+      // 利用methods 里面的方法。
       var methods = vm.$options.methods
       var method = methods && methods[handler]
       if (method) {
+        // 同样找到对应的 方法，利用 $on ，或者 $watch 注册/监听 对应的方法。
         vm[action](key, method, options)
       } else {
+        // 否则，抛出异常，不合法的 handler 方法。
         process.env.NODE_ENV !== 'production' && warn(
           'Unknown method: "' + handler + '" when ' +
           'registering callback for ' + action +
@@ -113,6 +120,8 @@ export default function (Vue) {
         )
       }
     } else if (handler && type === 'object') {
+      // 或者以 对象的形式，涵盖了 options 相关信息，
+      // 拆分出对应的 events 事件名。
       register(vm, action, key, handler.handler, handler)
     }
   }
@@ -185,10 +194,13 @@ export default function (Vue) {
     var handlers = this.$options[hook]
     // 遍历 触发 handlers 中的 回调函数。
     if (handlers) {
+      // 触发 用户注册的钩子函数
       for (var i = 0, j = handlers.length; i < j; i++) {
+        // 利用 call，传入当前vue 实例， 修改上下文，
         handlers[i].call(this)
       }
     }
+    //  触发 在events 选型里面，以 hook: 开头的注册的钩子函数。
     this.$emit('hook:' + hook)
   }
 }
