@@ -161,11 +161,14 @@ export default function (Vue) {
     if (isSource) {
       // use object event to indicate non-source emit
       // on children
+      // 将事件封装在对象里面，标识是否为本源对象。
       args[0] = { name: event, source: this }
     }
     for (var i = 0, l = children.length; i < l; i++) {
       var child = children[i]
+      // 在 子组件上 传入 event 对象， 利用$emit 触发事件。
       var shouldPropagate = child.$emit.apply(child, args)
+      // 如果放回 true ，支持冒泡，则继续使用 $broadcast 向下广播。
       if (shouldPropagate) {
         child.$broadcast.apply(child, args)
       }
@@ -175,19 +178,24 @@ export default function (Vue) {
 
   /**
    * Recursively propagate an event up the parent chain.
-   *
+   * 递归在其父组件中触发 事件。
    * @param {String} event
    * @param {...*} additional arguments
    */
 
   Vue.prototype.$dispatch = function (event) {
+    // 最先在 当前组件中触发事件。
+    // 获取到事件触发后 的返回值，true 表示支持冒泡，false 表示停止向上冒泡。
     var shouldPropagate = this.$emit.apply(this, arguments)
     if (!shouldPropagate) return
     var parent = this.$parent
     var args = toArray(arguments)
     // use object event to indicate non-source emit
     // on parents
+    // 通过将event 转换为 对象，来表示是否 非源触发。
     args[0] = { name: event, source: this }
+    // 通过 $parent 向上遍历 嵌套的组件。
+    // 同样利用事件触发后的返回值，来判断是否继续向上遍历传播事件。
     while (parent) {
       shouldPropagate = parent.$emit.apply(parent, args)
       parent = shouldPropagate
