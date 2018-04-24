@@ -274,6 +274,7 @@ export function extractContent (el, asFragment) {
   if (isTemplate(el) && isFragment(el.content)) {
     el = el.content
   }
+  // el.hasChildNodes 判断是否存在子节点。
   if (el.hasChildNodes()) {
     trimNode(el)
     rawContent = asFragment
@@ -310,7 +311,7 @@ export function trimNode (node) {
 function isTrimmable (node) {
   return node && (
     (node.nodeType === 3 && !node.data.trim()) ||
-    node.nodeType === 8
+    node.nodeType === 8   // nodeType === 8 注释
   )
 }
 
@@ -318,7 +319,7 @@ function isTrimmable (node) {
  * Check if an element is a template tag.
  * Note if the template appears inside an SVG its tagName
  * will be in lowercase.
- *
+ * 判断 el 选项对应的 属性值，是否为 <template></template>
  * @param {Element} el
  */
 
@@ -425,7 +426,8 @@ export function removeNodeRange (start, end, vm, frag, cb) {
 
 /**
  * Check if a node is a DocumentFragment.
- *
+ *　nodeType 11 代表的是DocumentFragment，文档片段节点
+ *　没有父节点的最小的文档对象.
  * @param {Node} node
  * @return {Boolean}
  */

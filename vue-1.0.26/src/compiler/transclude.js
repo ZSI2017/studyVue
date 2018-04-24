@@ -34,11 +34,13 @@ export function transclude (el, options) {
   // assuming the same object will be used for compile
   // right after this.
   if (options) {
+     // 获取到容器组件中的 所有属性 数组。
     options._containerAttrs = extractAttrs(el)
   }
   // for template tags, what we want is its content as
   // a documentFragment (for fragment instances)
   if (isTemplate(el)) {
+    // 如果是template模板，解析模板内部
     el = parseTemplate(el)
   }
   if (options) {
@@ -124,6 +126,7 @@ function transcludeTemplate (el, options) {
  * Helper to extract a component container's attributes
  * into a plain object array.
  *
+ *  提取 组件容器的 属性，保存在数组中。
  * @param {Element} el
  * @return {Array}
  */
