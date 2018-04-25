@@ -268,9 +268,10 @@ export function cloneNode (node) {
 
 export function parseTemplate (template, shouldClone, raw) {
   var node, frag
-
+     
   // if the template is already a document fragment,
   // do nothing
+  // 
   if (isFragment(template)) {
     trimNode(template)
     return shouldClone
