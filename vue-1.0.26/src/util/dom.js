@@ -265,8 +265,7 @@ export function removeClass (el, cls) {
  * @param {Element} el
  * @param {Boolean} asFragment
  * @return {Element|DocumentFragment}
- */
-
+ */的  
 export function extractContent (el, asFragment) {
   var child
   var rawContent
@@ -276,11 +275,13 @@ export function extractContent (el, asFragment) {
   }
   // el.hasChildNodes 判断是否存在子节点。
   if (el.hasChildNodes()) {
-    trimNode(el)
-    rawContent = asFragment
-      ? document.createDocumentFragment()
+    trimNode(el)   // 删除元素中的 空的文本内容，或者注释节点。
+    rawContent = asFragment               // 是否创建 documentFragment节点
+      ? document.createDocumentFragment() 
       : document.createElement('div')
     /* eslint-disable no-cond-assign */
+    // 深拷贝 el 中的所有的子节点，
+    // 保存到 rawContent 中。
     while (child = el.firstChild) {
     /* eslint-enable no-cond-assign */
       rawContent.appendChild(child)
@@ -293,6 +294,8 @@ export function extractContent (el, asFragment) {
  * Trim possible empty head/tail text and comment
  * nodes inside a parent.
  *
+ * 修整可能出现空的 head/tail 文本，或者嵌套在 documentFrament 中的注释。
+ * 如果是，则删除
  * @param {Node} node
  */
 
@@ -300,6 +303,7 @@ export function trimNode (node) {
   var child
   /* eslint-disable no-sequences */
   while (child = node.firstChild, isTrimmable(child)) {
+    // 满足以上 istrimmable的无实际意义的node ,则可以直接删除。
     node.removeChild(child)
   }
   while (child = node.lastChild, isTrimmable(child)) {
@@ -308,8 +312,15 @@ export function trimNode (node) {
   /* eslint-enable no-sequences */
 }
 
+/**
+ *  nodeType === 3 ,代表元素或属性中的文本内容。     Text
+ *  nodeType === 8 , 代表注释                      Comment
+ * @param {} node 
+ */
 function isTrimmable (node) {
   return node && (
+    //为文本内容，且里面的内容为空，
+    //为注释的节点,
     (node.nodeType === 3 && !node.data.trim()) ||
     node.nodeType === 8   // nodeType === 8 注释
   )
@@ -427,7 +438,7 @@ export function removeNodeRange (start, end, vm, frag, cb) {
 /**
  * Check if a node is a DocumentFragment.
  *　nodeType 11 代表的是DocumentFragment，文档片段节点
- *　没有父节点的最小的文档对象.
+ *　没有父节点的最小的文档对象. 
  * @param {Node} node
  * @return {Boolean}
  */
