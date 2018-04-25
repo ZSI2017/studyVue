@@ -171,6 +171,7 @@ function nodeToFragment (node) {
 
 // Test for the presence of the Safari template cloning bug
 // https://bugs.webkit.org/showug.cgi?id=137755
+// 检查是否在 Safari 中存在 克隆 template 的bug
 var hasBrokenTemplate = (function () {
   /* istanbul ignore else */
   if (inBrowser) {
@@ -209,6 +210,7 @@ export function cloneNode (node) {
   if (!node.querySelectorAll) {
     return node.cloneNode()
   }
+  // true 表示深拷贝节点，包括递归遍历其子节点。
   var res = node.cloneNode(true)
   var i, original, cloned
   /* istanbul ignore if */
@@ -271,7 +273,7 @@ export function parseTemplate (template, shouldClone, raw) {
      
   // if the template is already a document fragment,
   // do nothing
-  // 
+  // 通过 nodeType === 11 判断是否为 document fragment。
   if (isFragment(template)) {
     trimNode(template)
     return shouldClone
