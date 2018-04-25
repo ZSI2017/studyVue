@@ -1,4 +1,5 @@
 import Dep from './dep'
+// var reg = /[0-9]{1,}路.*;/
 import { arrayMethods } from './array'
 import {
   def,
