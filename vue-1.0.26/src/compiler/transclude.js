@@ -45,6 +45,7 @@ export function transclude (el, options) {
   }
   if (options) {
     if (options._asComponent && !options.template) {
+      // 作用域插槽
       options.template = '<slot></slot>'
     }
     if (options.template) {

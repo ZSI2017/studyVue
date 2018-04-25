@@ -242,6 +242,7 @@ export function bind (fn, ctx) {
 /**
  * Convert an Array-like object to a real Array.
  *
+ *  类数组（arguments, NodeList） --》 真实数组
  * @param {Array-like} list
  * @param {Number} [start] - start index
  * @return {Array}
