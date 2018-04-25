@@ -36,7 +36,6 @@ export function transclude (el, options) {
   if (options) {
      // 获取到容器组件中的 所有属性 数组。
     options._containerAttrs = extractAttrs(el)
-  }
   // for template tags, what we want is its content as
   // a documentFragment (for fragment instances)
   if (isTemplate(el)) {
