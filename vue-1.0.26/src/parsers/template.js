@@ -141,6 +141,7 @@ function stringToFragment (templateString, raw) {
   }
   //  解析完成后，添加到缓存中。
   templateCache.put(cacheKey, frag)
+  // 返回 documentFragment
   return frag
 }
 
