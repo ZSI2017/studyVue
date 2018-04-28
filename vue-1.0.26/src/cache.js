@@ -4,8 +4,12 @@
  * discarding least recently used items when its limit is
  * reached. This is a bare-bone version of
  * Rasmus Andersson's js-lru:
- *
+ * 
  *   https://github.com/rsms/js-lru
+ * 
+ * 内存管理中的一种页面置换算法
+ * LRU(Least Recently Used)，最近最少使用，
+ * 通常为虚拟也页式存储管理服务的。
  *
  * @param {Number} limit
  * @constructor
