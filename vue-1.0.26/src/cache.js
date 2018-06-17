@@ -4,9 +4,15 @@
  * discarding least recently used items when its limit is
  * reached. This is a bare-bone version of
  * Rasmus Andersson's js-lru:
+<<<<<<< HEAD
  *
  *   https://github.com/rsms/js-lru
  *
+=======
+ * 
+ *   https://github.com/rsms/js-lru
+ * 
+>>>>>>> b7be9ff6ae8808874306d20e2f5fa16ec181b528
  * 内存管理中的一种页面置换算法
  * LRU(Least Recently Used)，最近最少使用，
  * 通常为虚拟也页式存储管理服务的。
@@ -48,6 +54,7 @@ p.put = function (key, value) {
     }
     this._keymap[key] = entry
     if (this.tail) {
+<<<<<<< HEAD
       // 尾部保存最新 放入的数据。
       this.tail.newer = entry
       entry.older = this.tail
@@ -63,6 +70,18 @@ p.put = function (key, value) {
   // 将相应的值 存入进去。
   entry.value = value
   // 在空间不足的情况下，removed 会返回被删除的元素，为新元素腾出空间。
+=======
+      this.tail.newer = entry
+      entry.older = this.tail
+    } else {
+      this.head = entry
+    }
+    this.tail = entry
+    this.size++
+  }
+  entry.value = value
+
+>>>>>>> b7be9ff6ae8808874306d20e2f5fa16ec181b528
   return removed
 }
 
@@ -73,6 +92,7 @@ p.put = function (key, value) {
  */
 
 p.shift = function () {
+<<<<<<< HEAD
   //  head 保存着 最老 没有使用的 元素。
   var entry = this.head
   // 如果存在最老的 没有使用的 元素。
@@ -87,6 +107,16 @@ p.shift = function () {
     this.size--
   }
   // 返回被溢出的 元素。
+=======
+  var entry = this.head
+  if (entry) {
+    this.head = this.head.newer
+    this.head.older = undefined
+    entry.newer = entry.older = undefined
+    this._keymap[entry.key] = undefined
+    this.size--
+  }
+>>>>>>> b7be9ff6ae8808874306d20e2f5fa16ec181b528
   return entry
 }
 
@@ -100,9 +130,14 @@ p.shift = function () {
  */
 
 p.get = function (key, returnEntry) {
+<<<<<<< HEAD
   var entry = this._keymap[key]  // 通过 key 值 或者到入口。
   if (entry === undefined) return
    // 如果get 对应的值，已经是最新的值，则不用调整对应的链表结构。
+=======
+  var entry = this._keymap[key]
+  if (entry === undefined) return
+>>>>>>> b7be9ff6ae8808874306d20e2f5fa16ec181b528
   if (entry === this.tail) {
     return returnEntry
       ? entry
@@ -112,7 +147,11 @@ p.get = function (key, returnEntry) {
   //   <.older   .newer>
   //  <--- add direction --
   //   A  B  C  <D>  E
+<<<<<<< HEAD
   if (entry.newer) { //存在 最新的 值。
+=======
+  if (entry.newer) {
+>>>>>>> b7be9ff6ae8808874306d20e2f5fa16ec181b528
     if (entry === this.head) {
       this.head = entry.newer
     }
@@ -126,9 +165,13 @@ p.get = function (key, returnEntry) {
   if (this.tail) {
     this.tail.newer = entry // E. <-- D
   }
+<<<<<<< HEAD
   // 最新一次使用的值，会被放在 tail 尾部。
   this.tail = entry
   // 放回 对象，或者 值。
+=======
+  this.tail = entry
+>>>>>>> b7be9ff6ae8808874306d20e2f5fa16ec181b528
   return returnEntry
     ? entry
     : entry.value
