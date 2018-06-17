@@ -160,10 +160,12 @@ function nodeToFragment (node) {
   // have to treat template elements as string templates. (#2805)
   /* istanbul ignore if */
   if (isRealTemplate(node)) {
+    // 传入 node.innerHTML 
     return stringToFragment(node.innerHTML)
   }
   // script template
   if (node.tagName === 'SCRIPT') {
+    // 表示一个节点及其后代的文本内容。
     return stringToFragment(node.textContent)
   }
   // normal node, clone it to avoid mutating the original
@@ -172,9 +174,12 @@ function nodeToFragment (node) {
   var child
   /* eslint-disable no-cond-assign */
   while (child = clonedNode.firstChild) {
+    // 遍历 cloneNode 中所有的 节点。
+    // 通过 appendChild 添加到 documentfragment 片段中去。
   /* eslint-enable no-cond-assign */
     frag.appendChild(child)
   }
+  // 去除空的文本节点 或者 注释。 
   trimNode(frag)
   return frag
 }
@@ -332,10 +337,12 @@ export function parseTemplate (template, shouldClone, raw) {
     }
   } else if (template.nodeType) {
     // a direct node
+    // 通过 nodeType 属性 判断是否为 node，
     frag = nodeToFragment(template)
   }
 
   return frag && shouldClone
+  // 通过 shouldClone 来判断是否调用 cloneNode.
     ? cloneNode(frag)
     : frag
 }

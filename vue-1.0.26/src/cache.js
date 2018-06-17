@@ -4,9 +4,9 @@
  * discarding least recently used items when its limit is
  * reached. This is a bare-bone version of
  * Rasmus Andersson's js-lru:
- * 
+ *
  *   https://github.com/rsms/js-lru
- * 
+ *
  * 内存管理中的一种页面置换算法
  * LRU(Least Recently Used)，最近最少使用，
  * 通常为虚拟也页式存储管理服务的。
@@ -48,16 +48,21 @@ p.put = function (key, value) {
     }
     this._keymap[key] = entry
     if (this.tail) {
+      // 尾部保存最新 放入的数据。
       this.tail.newer = entry
       entry.older = this.tail
     } else {
+      // 如果不存在尾部，则表示链表初始为空，则初始化头部。
       this.head = entry
     }
+    // 链表的尾部 则相应的向后移动 一位。
     this.tail = entry
+    // 同时 整个链表的总长度 加一；
     this.size++
   }
+  // 将相应的值 存入进去。
   entry.value = value
-
+  // 在空间不足的情况下，removed 会返回被删除的元素，为新元素腾出空间。
   return removed
 }
 
@@ -68,14 +73,20 @@ p.put = function (key, value) {
  */
 
 p.shift = function () {
+  //  head 保存着 最老 没有使用的 元素。
   var entry = this.head
+  // 如果存在最老的 没有使用的 元素。
   if (entry) {
+    // 移除 this.head ，
     this.head = this.head.newer
     this.head.older = undefined
+    // 同时 将移除元素的 newer 和 older 都设置为 undefined。
     entry.newer = entry.older = undefined
     this._keymap[entry.key] = undefined
+    // 整个链表的长度减一。
     this.size--
   }
+  // 返回被溢出的 元素。
   return entry
 }
 
@@ -89,8 +100,9 @@ p.shift = function () {
  */
 
 p.get = function (key, returnEntry) {
-  var entry = this._keymap[key]
+  var entry = this._keymap[key]  // 通过 key 值 或者到入口。
   if (entry === undefined) return
+   // 如果get 对应的值，已经是最新的值，则不用调整对应的链表结构。
   if (entry === this.tail) {
     return returnEntry
       ? entry
@@ -100,7 +112,7 @@ p.get = function (key, returnEntry) {
   //   <.older   .newer>
   //  <--- add direction --
   //   A  B  C  <D>  E
-  if (entry.newer) {
+  if (entry.newer) { //存在 最新的 值。
     if (entry === this.head) {
       this.head = entry.newer
     }
@@ -114,7 +126,9 @@ p.get = function (key, returnEntry) {
   if (this.tail) {
     this.tail.newer = entry // E. <-- D
   }
+  // 最新一次使用的值，会被放在 tail 尾部。
   this.tail = entry
+  // 放回 对象，或者 值。
   return returnEntry
     ? entry
     : entry.value
