@@ -10,3 +10,5 @@
 - [数据代理](./docs/_proxy.md)
 
 - [响应式](./docs/_observer.md)
+
+- [LRU 缓存策略](./docs/_cache.md)

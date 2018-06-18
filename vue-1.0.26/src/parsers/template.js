@@ -68,7 +68,7 @@ map.rect = [
  * // <template> 元素，包含只读的 content 属性，
  * 这个属性保存的是 DocumentFragment。
  * var documentFragment = templateElement.content;
- * 
+ *
  * @param {Node} node
  * @return {Boolean}
  */
@@ -160,18 +160,12 @@ function nodeToFragment (node) {
   // have to treat template elements as string templates. (#2805)
   /* istanbul ignore if */
   if (isRealTemplate(node)) {
-<<<<<<< HEAD
-    // 传入 node.innerHTML 
-=======
->>>>>>> b7be9ff6ae8808874306d20e2f5fa16ec181b528
+    // 传入 node.innerHTML
     return stringToFragment(node.innerHTML)
   }
   // script template
   if (node.tagName === 'SCRIPT') {
-<<<<<<< HEAD
     // 表示一个节点及其后代的文本内容。
-=======
->>>>>>> b7be9ff6ae8808874306d20e2f5fa16ec181b528
     return stringToFragment(node.textContent)
   }
   // normal node, clone it to avoid mutating the original
@@ -180,18 +174,12 @@ function nodeToFragment (node) {
   var child
   /* eslint-disable no-cond-assign */
   while (child = clonedNode.firstChild) {
-<<<<<<< HEAD
     // 遍历 cloneNode 中所有的 节点。
     // 通过 appendChild 添加到 documentfragment 片段中去。
   /* eslint-enable no-cond-assign */
     frag.appendChild(child)
   }
-  // 去除空的文本节点 或者 注释。 
-=======
-  /* eslint-enable no-cond-assign */
-    frag.appendChild(child)
-  }
->>>>>>> b7be9ff6ae8808874306d20e2f5fa16ec181b528
+  // 去除空的文本节点 或者 注释。
   trimNode(frag)
   return frag
 }
@@ -254,7 +242,7 @@ export function cloneNode (node) {
       // node.content 获取到 template 里面的documentFragment 文档对象
       node = node.content
       tempClone = res.content
-    } 
+    }
     // 查到 内部的 template 元素
     original = node.querySelectorAll('template')
     if (original.length) {
@@ -276,12 +264,12 @@ export function cloneNode (node) {
   /* istanbul ignore if */
   if (hasTextareaCloneBug) {
     if (node.tagName === 'TEXTAREA') {
-      // 节点为 textarea  直接修改克隆厚点 value 
+      // 节点为 textarea  直接修改克隆厚点 value
       res.value = node.value
     } else {
       original = node.querySelectorAll('textarea')
       if (original.length) {
-        // 遍历 内部所有的 textarea 
+        // 遍历 内部所有的 textarea
         cloned = res.querySelectorAll('textarea')
         i = cloned.length
         while (i--) {
@@ -315,7 +303,7 @@ export function cloneNode (node) {
 
 export function parseTemplate (template, shouldClone, raw) {
   var node, frag
-     
+
   // if the template is already a document fragment,
   // do nothing
   // 通过 nodeType === 11 判断是否为 document fragment。
@@ -337,7 +325,7 @@ export function parseTemplate (template, shouldClone, raw) {
         // 如果没有，则需要手动获取节点 引用。
         node = document.getElementById(template.slice(1))
         if (node) {
-          // 
+          //
           frag = nodeToFragment(node)
           // save selector to cache
           idSelectorCache.put(template, frag)
@@ -349,18 +337,12 @@ export function parseTemplate (template, shouldClone, raw) {
     }
   } else if (template.nodeType) {
     // a direct node
-<<<<<<< HEAD
     // 通过 nodeType 属性 判断是否为 node，
-=======
->>>>>>> b7be9ff6ae8808874306d20e2f5fa16ec181b528
     frag = nodeToFragment(template)
   }
 
   return frag && shouldClone
-<<<<<<< HEAD
   // 通过 shouldClone 来判断是否调用 cloneNode.
-=======
->>>>>>> b7be9ff6ae8808874306d20e2f5fa16ec181b528
     ? cloneNode(frag)
     : frag
 }
