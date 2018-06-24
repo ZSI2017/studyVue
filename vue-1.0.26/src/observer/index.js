@@ -184,6 +184,8 @@ export function observe (value, vm) {
 }
 
 /**
+ * 在对象里面通过 setter getter 构造器定义一个活性属性
+ * 每当属性改变时，都会通过对应的 监听数组。
  * Define a reactive property on an Object.
  *
  * @param {Object} obj
@@ -194,6 +196,20 @@ export function observe (value, vm) {
 export function defineReactive (obj, key, val) {
   var dep = new Dep()
 
+  /**
+   *  ES5 Object.getOwnPropertyDescriptor(),返回指定对象上一个自有属性对应的属性描述符。
+   *  属性描述符是一个记录，组成：
+   *   如果是 访问器属性，则 返回的对象的属性有
+   *     configurable,
+   *     enumerable（对象属性可以被枚举时，为true）,
+   *     get（获取该属性的访问器函数） 和
+   *     set（获取该属性的设置 器函数）
+   *   如果是数据属性，则 有
+   *     configurable(当且仅当对象的属性描述可以被改变或者属性可被删除时，为true),
+   *      enumerable,
+   *      writable(当且仅仅当属性的值可以改变时为true),
+   *      value(该属性的值)
+   */
   var property = Object.getOwnPropertyDescriptor(obj, key)
   if (property && property.configurable === false) {
     return

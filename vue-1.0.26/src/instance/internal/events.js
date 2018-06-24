@@ -200,7 +200,7 @@ export default function (Vue) {
         handlers[i].call(this)
       }
     }
-    //  触发 在events 选型里面，以 hook: 开头的注册的钩子函数。
+    //  触发 在events 选项里面，以 hook: 开头的注册的钩子函数。
     this.$emit('hook:' + hook)
   }
 }

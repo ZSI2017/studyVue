@@ -100,6 +100,7 @@ export default function (Vue) {
     var i, key
     i = keys.length
     while (i--) {
+
       key = keys[i]
       // there are two scenarios where we can proxy a data key:
       // 1. it's not already defined as a prop
@@ -294,6 +295,7 @@ export default function (Vue) {
 
   /**
    * Initialize meta information like $index, $key & $value.
+   * $index, $key, $value;
    */
 
   Vue.prototype._initMeta = function () {
