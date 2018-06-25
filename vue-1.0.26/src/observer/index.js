@@ -33,6 +33,8 @@ export function withoutConversion (fn) {
  * object's property keys into getter/setters that
  * collect dependencies and dispatches updates.
  *
+  Observer 连接每个被监听的对象， 一旦连接， 把对象的属性转换为setter/getter，
+
  * @param {Array|Object} value
  * @constructor
  */
@@ -103,6 +105,7 @@ Observer.prototype.convert = function (key, val) {
  */
 
 Observer.prototype.addVm = function (vm) {
+  // 新的vm
   (this.vms || (this.vms = [])).push(vm)
 }
 
@@ -160,7 +163,9 @@ function copyAugment (target, src, keys) {
  */
 
 export function observe (value, vm) {
+
   if (!value || typeof value !== 'object') {
+  // 如果即将创建Observer 实例的value 不是对象，直接返回。
     return
   }
   var ob
@@ -168,6 +173,8 @@ export function observe (value, vm) {
     hasOwn(value, '__ob__') &&
     value.__ob__ instanceof Observer
   ) {
+    // 如果对应的value 值上，已经挂载__ob__ 标识，
+    //表示这个value 已经有一个对应的 observer 实例，
     ob = value.__ob__
   } else if (
     shouldConvert &&
@@ -175,9 +182,15 @@ export function observe (value, vm) {
     Object.isExtensible(value) &&
     !value._isVue
   ) {
+    // 上面 else if 判断条件是
+    // 1.考虑到 frozen data structure 类型的值，不需要进行强制装换成新值
+    // 2.必须是 Array 或者 Object,
+    // 3.Object.isExtensible 判断一个对象是否是可扩展（是否可以在它上面添加新的属性。）
+    // 3. 非 Vue 构造函数内部值。
     ob = new Observer(value)
   }
   if (ob && vm) {
+    // 如果存在vms 数组，
     ob.addVm(vm)
   }
   return ob
@@ -218,7 +231,7 @@ export function defineReactive (obj, key, val) {
   // cater for pre-defined getter/setters
   var getter = property && property.get
   var setter = property && property.set
-
+  // 如果即将被监听的val值， 也是一个对象，则对该val 继续进行监听。
   var childOb = observe(val)
   Object.defineProperty(obj, key, {
     enumerable: true,
@@ -242,9 +255,11 @@ export function defineReactive (obj, key, val) {
     set: function reactiveSetter (newVal) {
       var value = getter ? getter.call(obj) : val
       if (newVal === value) {
+        // 前后两次值没有发生改变，则
         return
       }
       if (setter) {
+        // 属性本身带有 setter 设置器，主动触发 setter
         setter.call(obj, newVal)
       } else {
         val = newVal
