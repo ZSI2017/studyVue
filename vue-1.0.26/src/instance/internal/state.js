@@ -107,6 +107,7 @@ export default function (Vue) {
       // 2. it's provided via a instantiation option AND there are no
       //    template prop present
       //    props 中没有这个 key 值，或者 不存在props.
+      // 避免与props 中传递的属性发生冲突
       if (!props || !hasOwn(props, key)) {
         // 转换为 setter/getter 形式。
         this._proxy(key)
@@ -233,9 +234,9 @@ export default function (Vue) {
     if (computed) {
       for (var key in computed) {
         var userDef = computed[key]
-        var def = {
-          enumerable: true,
-          configurable: true
+        var def = { //
+          enumerable: true,   // 可以被枚举
+          configurable: true  // 对象可以被删除
         }
         if (typeof userDef === 'function') {
           // 只传入一个 函数，默认为 getter
@@ -252,6 +253,7 @@ export default function (Vue) {
             : noop
         }
         // 将 computed 对象中的属性，定义到 this vue实例上面
+        // 在vue 函数内部，就可以直接使用  计算函数。
         Object.defineProperty(this, key, def)
       }
     }

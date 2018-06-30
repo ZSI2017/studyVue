@@ -8,6 +8,7 @@ import {
   hasOwn
 } from '../util/index'
 
+// getOwnPropertyNames 返回对象自身 拥有的枚举 和 不可枚举 属性
 const arrayKeys = Object.getOwnPropertyNames(arrayMethods)
 
 /**
@@ -33,6 +34,10 @@ export function withoutConversion (fn) {
  * object's property keys into getter/setters that
  * collect dependencies and dispatches updates.
  *
+   Observer 连接每个被监听的对象， 一旦建立连接，
+   把对象的内部的每个属性转换为setter/getter，
+   / 通过isArray 方式，区分将要被监听的value 是 数组 或者 对象。
+
  * @param {Array|Object} value
  * @constructor
  */
@@ -40,14 +45,23 @@ export function withoutConversion (fn) {
 export function Observer (value) {
   this.value = value
   this.dep = new Dep()
+  // 将新定义的 Observer 对象，绑定到value 的 '__ob__' 属性上。
+  // 方便下次，在 observer 方法中获取，
   def(value, '__ob__', this)
   if (isArray(value)) {
+    // 检查 是否可以使用 __proto__ 隐式原型属性，
+    // 方便后面直接改写Array 的原型方法。
+    // 使用 copyAugment 方法。 直接使用 for..in 遍历target 上所有的原型方法，
+    // 利用 def 重写 value 原型上面的所有的 方法。
     var augment = hasProto
       ? protoAugment
       : copyAugment
     augment(value, arrayMethods, arrayKeys)
+      // 监听数组上的每一项。
     this.observeArray(value)
   } else {
+    // 对象。
+    //    则遍历对象中的所有的属性，并转化为setter / getter 构造器 类型
     this.walk(value)
   }
 }
@@ -58,13 +72,14 @@ export function Observer (value) {
  * Walk through each property and convert them into
  * getter/setters. This method should only be called when
  * value type is Object.
- *
+ *如果传入的参数是对象，则遍历对象上的每个属性，把他们转换成 getter/setter 构造器的形式。方便监听到每个属性的改变。
  * @param {Object} obj
  */
 
 Observer.prototype.walk = function (obj) {
   var keys = Object.keys(obj)
   for (var i = 0, l = keys.length; i < l; i++) {
+    // 遍历对象中的所有属性
     this.convert(keys[i], obj[keys[i]])
   }
 }
@@ -77,6 +92,8 @@ Observer.prototype.walk = function (obj) {
 
 Observer.prototype.observeArray = function (items) {
   for (var i = 0, l = items.length; i < l; i++) {
+    // 遍历数组上的每一项，并对items 进行监听。 利用 Observer 类进行实例化 之前的
+    // 错误检查判断
     observe(items[i])
   }
 }
@@ -90,6 +107,7 @@ Observer.prototype.observeArray = function (items) {
  */
 
 Observer.prototype.convert = function (key, val) {
+  //
   defineReactive(this.value, key, val)
 }
 
@@ -103,6 +121,7 @@ Observer.prototype.convert = function (key, val) {
  */
 
 Observer.prototype.addVm = function (vm) {
+  // 新的vm
   (this.vms || (this.vms = [])).push(vm)
 }
 
@@ -122,7 +141,7 @@ Observer.prototype.removeVm = function (vm) {
 /**
  * Augment an target Object or Array by intercepting
  * the prototype chain using __proto__
- *
+ * 改变 对应的 隐式原型的指向，改变相应的原型链，主要为Array加上自定义的push.shift 等方法。
  * @param {Object|Array} target
  * @param {Object} src
  */
@@ -160,7 +179,9 @@ function copyAugment (target, src, keys) {
  */
 
 export function observe (value, vm) {
+
   if (!value || typeof value !== 'object') {
+  // 如果即将创建Observer 实例的value 不是对象，直接返回。
     return
   }
   var ob
@@ -168,6 +189,8 @@ export function observe (value, vm) {
     hasOwn(value, '__ob__') &&
     value.__ob__ instanceof Observer
   ) {
+    // 如果对应的value 值上，已经挂载__ob__ 标识，
+    //表示这个value 已经有一个对应的 observer 实例，
     ob = value.__ob__
   } else if (
     shouldConvert &&
@@ -175,9 +198,15 @@ export function observe (value, vm) {
     Object.isExtensible(value) &&
     !value._isVue
   ) {
+    // 上面 else if 判断条件是
+    // 1.考虑到 frozen data structure 类型的值，不需要进行强制装换成新值
+    // 2.必须是 Array 或者 Object,
+    // 3.Object.isExtensible 判断一个对象是否是可扩展（是否可以在它上面添加新的属性。）
+    // 3. 非 Vue 构造函数内部值。
     ob = new Observer(value)
   }
   if (ob && vm) {
+    // 如果存在vms 数组， vms 数组作用，有待后面确认。
     ob.addVm(vm)
   }
   return ob
@@ -214,11 +243,11 @@ export function defineReactive (obj, key, val) {
   if (property && property.configurable === false) {
     return
   }
-
+  // 提供提前设定好的 getter(访问器函数)  和 setter (设置器函数）；
   // cater for pre-defined getter/setters
   var getter = property && property.get
   var setter = property && property.set
-
+  // 如果即将被监听的val值， 也是一个对象，则对该val 继续进行监听。
   var childOb = observe(val)
   Object.defineProperty(obj, key, {
     enumerable: true,
@@ -246,11 +275,14 @@ export function defineReactive (obj, key, val) {
         return
       }
       if (setter) {
+        // 属性本身带有 setter 设置器，主动触发 setter
         setter.call(obj, newVal)
       } else {
         val = newVal
       }
+  // 为 newValue 上的所有属性都加上监听器
       childOb = observe(newVal)
+      // 通知观察者队列中所有项
       dep.notify()
     }
   })

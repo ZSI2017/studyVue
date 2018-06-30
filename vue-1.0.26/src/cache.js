@@ -62,6 +62,8 @@ p.put = function (key, value) {
   }
   // 将相应的值 存入进去。
   entry.value = value
+
+console.log(this._keymap)
   // 在空间不足的情况下，removed 会返回被删除的元素，为新元素腾出空间。
   return removed
 }

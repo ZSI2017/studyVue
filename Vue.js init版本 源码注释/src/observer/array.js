@@ -26,11 +26,12 @@ export const arrayMethods = Object.create(arrayProto)
   // 在数组对象的上定义属性方法。
   def(arrayMethods, method, function mutator () {
     // avoid leaking arguments:
-    // 避免漏掉 传入的参数。
+    // 避免直接使用 arguments 传递函数
     // http://jsperf.com/closure-with-arguments
     var i = arguments.length
     var args = new Array(i)
     // 把类数组 arguments 遍历出来，转换成数组。便于后面的apply 传递参数。
+    // 避免使用arguments 直接传递给函数
     while (i--) {
       args[i] = arguments[i]
     }
@@ -53,7 +54,7 @@ export const arrayMethods = Object.create(arrayProto)
     // 检查到有即将插入的数组项，如果数组项是一个可扩展的对象，同样在上面加上对应的监听器
     if (inserted) ob.observeArray(inserted)
     // notify change
-    //  遍历 this.subs 监听器队列，也就是hi观察者队列，触发所有的监听器上的更新事件。
+    //  遍历 this.subs 监听器队列，也就是观察者队列，触发所有的监听器上的更新事件。
     ob.dep.notify()
     return result
   })

@@ -49,9 +49,13 @@ export function Observer (value) {
     var augment = hasProto
       ? protoAugment
       : copyAugment
+    // 重写数组上的 原型方法。
     augment(value, arrayMethods, arrayKeys)
+    // 监听数组上的每一项。
     this.observeArray(value)
   } else {
+    // 对象。
+    //    则遍历对象中的
     this.walk(value)
   }
 }
@@ -82,6 +86,8 @@ Observer.prototype.walk = function (obj) {
 
 Observer.prototype.observeArray = function (items) {
   for (var i = 0, l = items.length; i < l; i++) {
+    // 遍历数组上的每一项，并对items 进行监听。 利用 Observer 类进行实例化 之前的
+    // 错误检查判断
     observe(items[i])
   }
 }
@@ -171,6 +177,7 @@ export function observe (value, vm) {
   }
   var ob
   if (
+
     hasOwn(value, '__ob__') &&
     value.__ob__ instanceof Observer
   ) {
