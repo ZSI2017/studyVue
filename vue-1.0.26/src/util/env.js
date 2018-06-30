@@ -113,22 +113,28 @@ export const nextTick = (function () {
   }
 })()
 
+// ES6 提供了新的数据结构,它类似于数组， 但是成员的值都是唯一的， 没有重复的值。
+// http://es6.ruanyifeng.com/#docs/set-map#Set
 let _Set
 /* istanbul ignore if */
 if (typeof Set !== 'undefined' && Set.toString().match(/native code/)) {
   // use native Set when available.
   _Set = Set
 } else {
+  // 提供一种并不标准的polyfill
   // a non-standard Set polyfill that only works with primitive keys.
   _Set = function () {
     this.set = Object.create(null)
   }
+  // has(value) 返回一个布尔值，表示该值是否为 Set 的成员。
   _Set.prototype.has = function (key) {
     return this.set[key] !== undefined
   }
+  // 添加某个值
   _Set.prototype.add = function (key) {
     this.set[key] = 1
   }
+  // 清除所有成员。
   _Set.prototype.clear = function () {
     this.set = Object.create(null)
   }

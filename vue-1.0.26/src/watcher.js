@@ -39,8 +39,8 @@ export default function Watcher (vm, expOrFn, cb, options) {
     extend(this, options)
   }
   var isFn = typeof expOrFn === 'function'
-  this.vm = vm
-  vm._watchers.push(this)
+  this.vm = vm        // 保存当前上下文指向。
+  vm._watchers.push(this)     // all watchers as an array
   this.expression = expOrFn
   this.cb = cb
   this.id = ++uid // uid for batching
@@ -48,7 +48,7 @@ export default function Watcher (vm, expOrFn, cb, options) {
   this.dirty = this.lazy // for lazy watchers
   this.deps = []
   this.newDeps = []
-  this.depIds = new Set()
+  this.depIds = new Set() // 在 Set数据结构中，保证id 的唯一性。
   this.newDepIds = new Set()
   this.prevError = null // for async error stacks
   // parse expression for getter/setter
@@ -74,15 +74,21 @@ export default function Watcher (vm, expOrFn, cb, options) {
 
 Watcher.prototype.get = function () {
   this.beforeGet()
+  // 获取当前作用域。
   var scope = this.scope || this.vm
   var value
   try {
+    // 在 vue 实例作用域下执行 this.getter 函数
+    // env:
+    //    1. 如果是 作用于 computed 选项，传入 Watch 类的 this.lazy = ture; 表示计算属性会使用缓存数据
+    //       下面触发了 getter 函数，则可以看做为 计算属性赋值。
     value = this.getter.call(scope, scope)
   } catch (e) {
     if (
       process.env.NODE_ENV !== 'production' &&
       config.warnExpressionErrors
     ) {
+      // 发出警告，对表达式求值时，发生了错误。
       warn(
         'Error when evaluating expression ' +
         '"' + this.expression + '": ' + e.toString(),
@@ -163,6 +169,8 @@ Watcher.prototype.set = function (value) {
  */
 
 Watcher.prototype.beforeGet = function () {
+  // 当前 watcher 实例 赋值给 target
+  // 在全局情况下，Dep.target unique
   Dep.target = this
 }
 

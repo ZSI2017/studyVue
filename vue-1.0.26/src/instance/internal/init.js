@@ -66,6 +66,7 @@ export default function (Vue) {
     // and container directives.
     this._scope = options._scope
 
+
     // fragment:
     // if this instance is compiled inside a Fragment, it
     // needs to reigster itself as a child of that fragment
@@ -113,7 +114,7 @@ export default function (Vue) {
 
     // if `el` option is passed, start compilation.
     if (options.el)
-      // 最后开始编译 html 
+      // 最后开始编译 html
       this.$mount(options.el)
     }
   }

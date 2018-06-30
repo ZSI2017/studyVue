@@ -267,7 +267,10 @@ export default function (Vue) {
     })
 
     return function computedGetter () {
+     // 获取计算属性值的时候 会调用这个函数 getter 取值器。
+     // this.dirty = this.lazy  for lazy watchers。
       if (watcher.dirty) {
+        // 求值
         watcher.evaluate()
       }
       // 收集依赖。添加到依赖数组里面。
