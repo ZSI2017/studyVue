@@ -242,6 +242,7 @@ export function defineReactive (obj, key, val) {
     set: function reactiveSetter (newVal) {
       var value = getter ? getter.call(obj) : val
       if (newVal === value) {
+        // value 值没有发生改变， 则直接放回。
         return
       }
       if (setter) {
