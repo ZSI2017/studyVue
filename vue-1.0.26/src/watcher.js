@@ -82,6 +82,7 @@ Watcher.prototype.get = function () {
     // env:
     //    1. 如果是 作用于 computed 选项，传入 Watch 类的 this.lazy = ture; 表示计算属性会使用缓存数据
     //       下面触发了 getter 函数，则可以看做为 计算属性赋值。
+    //    2. 如果是
     value = this.getter.call(scope, scope)
   } catch (e) {
     if (
@@ -171,6 +172,8 @@ Watcher.prototype.set = function (value) {
 Watcher.prototype.beforeGet = function () {
   // 当前 watcher 实例 赋值给 target
   // 在全局情况下，Dep.target unique
+  // get() 取值之前，先赋值给 Dep.target ，
+  // 方便在取值过程中，使用 Dep.target.addDep()方法，收集dep依赖，并且把所有 watch 实例，放到对应的sub 监听者数组中。
   Dep.target = this
 }
 
@@ -181,11 +184,14 @@ Watcher.prototype.beforeGet = function () {
  */
 
 Watcher.prototype.addDep = function (dep) {
-  var id = dep.id
-  if (!this.newDepIds.has(id)) {
+  var id = dep.id    // 每个dep 实例都对应 uid 唯一
+  if (!this.newDepIds.has(id)) { // Set数据结构中 没有对应的id，则直接更新newDepIds 和 newDeps，
     this.newDepIds.add(id)
     this.newDeps.push(dep)
     if (!this.depIds.has(id)) {
+      // 保存到 Dep 实例对应 的 this.subs 数组中。
+      // dep.subs 数组中保存着 watch 实例
+      // 每个dep
       dep.addSub(this)
     }
   }
@@ -196,6 +202,7 @@ Watcher.prototype.addDep = function (dep) {
  */
 
 Watcher.prototype.afterGet = function () {
+  // 当前 watch 实例求值完成，则当前target 不再指向watch。
   Dep.target = null
   var i = this.deps.length
   while (i--) {
@@ -204,6 +211,8 @@ Watcher.prototype.afterGet = function () {
       dep.removeSub(this)
     }
   }
+  // 交换 depIds 和 newDepIds
+  // 以及交换 deps 和 newDeps；
   var tmp = this.depIds
   this.depIds = this.newDepIds
   this.newDepIds = tmp
@@ -295,10 +304,11 @@ Watcher.prototype.run = function () {
 Watcher.prototype.evaluate = function () {
   // avoid overwriting another watcher that is being
   // collected.
+  // 在改变target 之前，保存target,
   var current = Dep.target
-  this.value = this.get()
+  this.value = this.get()   // 获取到 value 值，
   this.dirty = false
-  Dep.target = current
+  Dep.target = current      // 重置回之前的 watch;
 }
 
 /**

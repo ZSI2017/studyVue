@@ -274,11 +274,13 @@ export default function (Vue) {
         watcher.evaluate()
       }
       // 收集依赖。添加到依赖数组里面。
+      // 将watch 对象上的 this.deps 数组中每个值Dep 实例遍历，对应更新 this.neweDeps 里面的值，
+      // 然后，每个Dep 实例中的 subs 数组，保存着当前 watch 实例。
       if (Dep.target) {
         watcher.depend()
       }
       // 返回 getter函数执行后的 结果
-      return watcher.value
+      return watcher.value // 返回值，则为计算属性的值。
     }
   }
 

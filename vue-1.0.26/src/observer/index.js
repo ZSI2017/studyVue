@@ -254,13 +254,15 @@ export function defineReactive (obj, key, val) {
     configurable: true,
     get: function reactiveGetter () {
       var value = getter ? getter.call(obj) : val
+      // Dep.target 对应全局 同一时间，唯一的 watch
       if (Dep.target) {
-        dep.depend()
+        dep.depend()   // 在当前 Dep.target 上，添加 dep 依赖。同时把Dep.target 指向的 Watcher 实例，push到 dep.subs 数组中。
         if (childOb) {
-          childOb.dep.depend()
+          childOb.dep.depend() // 如果对象中的属性值，也添加了的 __ob__ 属性，则同样添加 dep 依赖。到当前 Dep.target 中去。
         }
         if (isArray(value)) {
           for (var e, i = 0, l = value.length; i < l; i++) {
+            // 如果是数组，则遍历数组，收集里面的每个值对应的 dep 依赖。
             e = value[i]
             e && e.__ob__ && e.__ob__.dep.depend()
           }
@@ -280,7 +282,7 @@ export function defineReactive (obj, key, val) {
       } else {
         val = newVal
       }
-  // 为 newValue 上的所有属性都加上监听器
+  // 为 newValue 上的所有属性都加上监听器，更新 childOb 的属性值。
       childOb = observe(newVal)
       // 通知观察者队列中所有项
       dep.notify()
