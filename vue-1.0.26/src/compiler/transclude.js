@@ -39,7 +39,10 @@ export function transclude (el, options) {
   // for template tags, what we want is its content as
   // a documentFragment (for fragment instances)
   if (isTemplate(el)) {
-    // 如果是template模板，解析模板内部
+    // 如果是template模板，解析模板内部， 如果传入的是 string,则去除模板内部的空格，注释，空文本节点。
+    // 不同情况：
+    // node --》 Fragment， √ 这里 el为 node,
+    // string --> fragment
     el = parseTemplate(el)
   }
   if (options) {
@@ -48,7 +51,7 @@ export function transclude (el, options) {
       options.template = '<slot></slot>'
     }
     if (options.template) {
-      options._content = extractContent(el)
+      options._content = extractContent(el) // 提取出el 里面的内容，用 div 包裹。
       el = transcludeTemplate(el, options)
     }
   }
@@ -73,13 +76,17 @@ export function transclude (el, options) {
 
 function transcludeTemplate (el, options) {
   var template = options.template
+  // parseTemplate。 返回 fragment 片段。
+  // shouldClone ： true, 在return之前cloneNode，
   var frag = parseTemplate(template, true)
+
   if (frag) {
     var replacer = frag.firstChild
     var tag = replacer.tagName && replacer.tagName.toLowerCase()
     if (options.replace) {
       /* istanbul ignore if */
       if (el === document.body) {
+        // replace： true 不能替换掉document.body
         process.env.NODE_ENV !== 'production' && warn(
           'You are mounting an instance with a template to ' +
           '<body>. This will replace <body> entirely. You ' +
@@ -107,7 +114,9 @@ function transcludeTemplate (el, options) {
       ) {
         return frag
       } else {
+        // 提取出属性值。
         options._replacerAttrs = extractAttrs(replacer)
+        // 合并属性到replacer 这个firstChild 节点上面。
         mergeAttrs(el, replacer)
         return replacer
       }

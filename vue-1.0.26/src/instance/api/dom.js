@@ -177,7 +177,8 @@ export default function (Vue) {
 
   /**
    * Append operation that takes a callback.
-   * 封装了append 操作，并在append 操作中添加了回调函数。
+   * 封装了append 操作，
+   * 并在append 操作中添加了回调函数。
    *
    * @param {Node} el
    * @param {Node} target

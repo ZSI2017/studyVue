@@ -265,11 +265,12 @@ export function removeClass (el, cls) {
 /**
  * Extract raw content inside an element into a temporary
  * container div
- *
+ * 提取出一个元素的原始内容，
+ * 并放在 一个div 块，或者是一个documentFragment 节点里面，返回
  * @param {Element} el
  * @param {Boolean} asFragment
  * @return {Element|DocumentFragment}
- */的
+ */
 export function extractContent (el, asFragment) {
   var child
   var rawContent
@@ -371,7 +372,7 @@ export function createAnchor (content, persist) {
 
 /**
  * Find a component ref attribute that starts with $.
- *
+ * 在组件中发现一个 ref 属性。
  * @param {Element} node
  * @return {String|undefined}
  */
@@ -392,6 +393,7 @@ export function findRef (node) {
 /**
  * Map a function to a range of nodes .
  *
+ * 对 一系类元素做 同样的 函数操作。
  * @param {Node} node
  * @param {Node} end
  * @param {Function} op
@@ -428,6 +430,7 @@ export function removeNodeRange (start, end, vm, frag, cb) {
     nodes.push(node)
     removeWithTransition(node, vm, onRemoved)
   })
+  // 移除成功的回调函数。
   function onRemoved () {
     removed++
     if (done && removed >= nodes.length) {
@@ -454,7 +457,7 @@ export function isFragment (node) {
 /**
  * Get outerHTML of elements, taking care
  * of SVG elements in IE as well.
- *
+ * 获取包括其后代的元素的序列化HTML片段。
  * @param {Element} el
  * @return {String}
  */
@@ -463,6 +466,7 @@ export function getOuterHTML (el) {
   if (el.outerHTML) {
     return el.outerHTML
   } else {
+    // 不存在对应的属性，则克隆一份
     var container = document.createElement('div')
     container.appendChild(el.cloneNode(true))
     return container.innerHTML

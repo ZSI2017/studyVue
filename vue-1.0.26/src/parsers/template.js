@@ -73,12 +73,12 @@ map.rect = [
  * @return {Boolean}
  */
 
-function isRealTemplate (node) {
+function isRealTemplate (node) { // 判断是否为真的 template 节点
   return isTemplate(node) && isFragment(node.content)
 }
-const tagRE = /<([\w:-]+)/
-const entityRE = /&#?\w+?;/
-const commentRE = /<!--/
+const tagRE = /<([\w:-]+)/    // 匹配节点
+const entityRE = /&#?\w+?;/   // 匹配html 转义
+const commentRE = /<!--/      // 匹配注释。
 /**
  * Convert a string template to a DocumentFragment.
  * Determines correct wrapping by tag types. Wrapping
@@ -101,9 +101,9 @@ function stringToFragment (templateString, raw) {
   }
   // 手动创造一个空的 documnetfragment 对象。
   var frag = document.createDocumentFragment()
-  var tagMatch = templateString.match(tagRE)
-  var entityMatch = entityRE.test(templateString)
-  var commentMatch = commentRE.test(templateString)
+  var tagMatch = templateString.match(tagRE)     // 匹配节点
+  var entityMatch = entityRE.test(templateString)  //匹配html 转义字符
+  var commentMatch = commentRE.test(templateString) // 匹配注释。
 
   if (!tagMatch && !entityMatch && !commentMatch) {
     // text only, return a single text node.
@@ -160,7 +160,7 @@ function nodeToFragment (node) {
   // have to treat template elements as string templates. (#2805)
   /* istanbul ignore if */
   if (isRealTemplate(node)) {
-    // 传入 node.innerHTML
+    // 传入 node.innerHTML,返回documentFragment 对象。
     return stringToFragment(node.innerHTML)
   }
   // script template
@@ -176,6 +176,7 @@ function nodeToFragment (node) {
   while (child = clonedNode.firstChild) {
     // 遍历 cloneNode 中所有的 节点。
     // 通过 appendChild 添加到 documentfragment 片段中去。
+    // 填充到 documentFragment 片段中去。
   /* eslint-enable no-cond-assign */
     frag.appendChild(child)
   }
@@ -315,8 +316,9 @@ export function parseTemplate (template, shouldClone, raw) {
   }
 
   if (typeof template === 'string') {
-    // id selector
+    // id selector，
     // options.template 中传入的是 #some-template-id
+    // 或者 el options 传入的是一个 #id,
     if (!raw && template.charAt(0) === '#') {
       // id selector can be cached too
       // 获取 缓存的id 选择器。
@@ -328,10 +330,12 @@ export function parseTemplate (template, shouldClone, raw) {
           //
           frag = nodeToFragment(node)
           // save selector to cache
+          // 同时保存在缓存中，方便下次使用。
           idSelectorCache.put(template, frag)
         }
       }
     } else {
+      // 一个正常的字符串模板。
       // normal string template
       frag = stringToFragment(template, raw)
     }
