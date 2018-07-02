@@ -184,9 +184,10 @@ export default function (Vue) {
   /**
    * Trigger all handlers for a hook
    *  触发钩子函数。
+   *     this._callHook('init')
    * @param {String} hook
    */
-  this._callHook('init')
+
   Vue.prototype._callHook = function (hook) {
     //触发之前，调用 pre--hook钩子函数。
     this.$emit('pre-hook:' + hook)

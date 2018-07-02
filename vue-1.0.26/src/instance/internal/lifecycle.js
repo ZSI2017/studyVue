@@ -58,6 +58,8 @@ export default function (Vue) {
     // the template and caches the original attributes
     // on the container node and replacer node.
     var original = el
+    // 返回经过 parseTemplate 函数编译后的
+    // fragment 片段。
     el = transclude(el, options)
     this._initElement(el)
 
@@ -131,6 +133,7 @@ export default function (Vue) {
     } else {
       this.$el = el
     }
+    // __vue__ 上面挂在 vue 实例
     this.$el.__vue__ = this
     this._callHook('beforeCompile')
   }

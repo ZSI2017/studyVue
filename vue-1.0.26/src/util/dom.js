@@ -4,7 +4,7 @@ import { warn } from './debug'
 import { camelize } from './lang'
 import { removeWithTransition } from '../transition/index'
 
-/**
+/**   
  * Query an element selector if it's not an element already.
  *
  * @param {String|Element} el

@@ -917,7 +917,7 @@ var text = Object.freeze({
      * @type {Boolean}
      */
 
-    debug: false,
+    debug: true,
 
     /**
      * Whether to suppress warnings.

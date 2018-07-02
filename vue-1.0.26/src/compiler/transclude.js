@@ -52,6 +52,9 @@ export function transclude (el, options) {
     }
     if (options.template) {
       options._content = extractContent(el) // 提取出el 里面的内容，用 div 包裹。
+      // options.replace
+      //    true:   经过 parseTemplate(template, true) 转换的，全新的 fragment；
+      //    falsee: 在原来 el 基础上   el.appendChild(frag)；
       el = transcludeTemplate(el, options)
     }
   }
@@ -59,6 +62,8 @@ export function transclude (el, options) {
     // anchors for fragment instance
     // passing in `persist: true` to avoid them being
     // discarded by IE during template cloning
+    //  在 debug  为 true 的模式下：
+    //      返回 createComment('v-start')，并插入到 el 前面。
     prepend(createAnchor('v-start', true), el)
     el.appendChild(createAnchor('v-end', true))
   }
