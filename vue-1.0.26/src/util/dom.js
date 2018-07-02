@@ -33,23 +33,25 @@ export function query (el) {
  * making unit tests difficult. This is fixed by doing the
  * contains() check on the node's parentNode instead of
  * the node itself.
- *
+ * Node.contains()返回的是一个布尔值，来表示传入的节点是否为该节点的后代节点。
+ * document.documentElement.contains 则表示可以检查一个节点是否存在文档流中。
+ * 通过检查元素的父节点来判断 当前元素是否在文档流中。
  * @param {Node} node
  * @return {Boolean}
  */
 
 export function inDoc (node) {
   if (!node) return false
-  var doc = node.ownerDocument.documentElement
+  var doc = node.ownerDocument.documentElement  //node.ownerDocument 只读属性，会返回当前节点的顶层document 对象。
   var parent = node.parentNode
   return doc === node ||
     doc === parent ||
-    !!(parent && parent.nodeType === 1 && (doc.contains(parent)))
+    !!(parent && parent.nodeType === 1 && (doc.contains(parent))) // node.nodeType === 1 为一个元素节点。
 }
 
 /**
  * Get and remove an attribute from a node.
- *
+ * 获取并 删除 元素属性。
  * @param {Node} node
  * @param {String} _attr
  */
@@ -64,7 +66,7 @@ export function getAttr (node, _attr) {
 
 /**
  * Get an attribute with colon or v-bind: prefix.
- *
+ *  获取 一个 v-bind 或者 ：开头的属性。
  * @param {Node} node
  * @param {String} name
  * @return {String|null}
@@ -94,6 +96,7 @@ export function hasBindAttr (node, name) {
 
 /**
  * Insert el before target
+ * 在元素前面插入。
  *
  * @param {Element} el
  * @param {Element} target
@@ -105,6 +108,7 @@ export function before (el, target) {
 
 /**
  * Insert el after target
+ * 元素后面插入节点。
  *
  * @param {Element} el
  * @param {Element} target
@@ -120,7 +124,7 @@ export function after (el, target) {
 
 /**
  * Remove el from DOM
- *
+ * 移除某个元素
  * @param {Element} el
  */
 
@@ -130,7 +134,7 @@ export function remove (el) {
 
 /**
  * Prepend el to target
- *
+ * 元素子节点前面
  * @param {Element} el
  * @param {Element} target
  */
@@ -265,7 +269,7 @@ export function removeClass (el, cls) {
  * @param {Element} el
  * @param {Boolean} asFragment
  * @return {Element|DocumentFragment}
- */的  
+ */的
 export function extractContent (el, asFragment) {
   var child
   var rawContent
@@ -277,7 +281,7 @@ export function extractContent (el, asFragment) {
   if (el.hasChildNodes()) {
     trimNode(el)   // 删除元素中的 空的文本内容，或者注释节点。
     rawContent = asFragment               // 是否创建 documentFragment节点
-      ? document.createDocumentFragment() 
+      ? document.createDocumentFragment()
       : document.createElement('div')
     /* eslint-disable no-cond-assign */
     // 深拷贝 el 中的所有的子节点，
@@ -315,7 +319,7 @@ export function trimNode (node) {
 /**
  *  nodeType === 3 ,代表元素或属性中的文本内容。     Text
  *  nodeType === 8 , 代表注释                      Comment
- * @param {} node 
+ * @param {} node
  */
 function isTrimmable (node) {
   return node && (
@@ -438,7 +442,7 @@ export function removeNodeRange (start, end, vm, frag, cb) {
 /**
  * Check if a node is a DocumentFragment.
  *　nodeType 11 代表的是DocumentFragment，文档片段节点
- *　没有父节点的最小的文档对象. 
+ *　没有父节点的最小的文档对象.
  * @param {Node} node
  * @return {Boolean}
  */

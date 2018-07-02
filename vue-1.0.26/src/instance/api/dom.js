@@ -165,7 +165,7 @@ export default function (Vue) {
 
   /**
    * Check for selectors
-   *
+   *  document.querySelector dom查询接口。
    * @param {String|Element} el
    */
 
@@ -177,6 +177,7 @@ export default function (Vue) {
 
   /**
    * Append operation that takes a callback.
+   * 封装了append 操作，并在append 操作中添加了回调函数。
    *
    * @param {Node} el
    * @param {Node} target
