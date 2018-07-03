@@ -17,18 +17,20 @@ function escapeRegex (str) {
 }
 
 export function compileRegex () {
-  var open = escapeRegex(config.delimiters[0])
-  var close = escapeRegex(config.delimiters[1])
-  var unsafeOpen = escapeRegex(config.unsafeDelimiters[0])
-  var unsafeClose = escapeRegex(config.unsafeDelimiters[1])
+  var open = escapeRegex(config.delimiters[0])  // 转义{{}} 大括号语法。"\{\{"
+  var close = escapeRegex(config.delimiters[1]) //  输出 "\}\}"
+  var unsafeOpen = escapeRegex(config.unsafeDelimiters[0])  // "\{\{\{"
+  var unsafeClose = escapeRegex(config.unsafeDelimiters[1]) // "\}\}\}"
   tagRE = new RegExp(
     unsafeOpen + '((?:.|\\n)+?)' + unsafeClose + '|' +
     open + '((?:.|\\n)+?)' + close,
     'g'
   )
+  // tagRE = /\{\{\{((?:.|\n)+?)\}\}\}|\{\{((?:.|\n)+?)\}\}/g
   htmlRE = new RegExp(
     '^' + unsafeOpen + '((?:.|\\n)+?)' + unsafeClose + '$'
   )
+  // htmlRE = /^\{\{\{((?:.|\n)+?)\}\}\}$/g 匹配 HTML 编码
   // reset cache
   cache = new Cache(1000)
 }
@@ -46,16 +48,22 @@ export function compileRegex () {
 
 export function parseText (text) {
   if (!cache) {
+    // 如果没有 Cache， 则 new Cache();
+    // 同时 新生成 tagRE  HTMLRE ，正则表达式。
     compileRegex()
   }
+  // 缓存中取text,
   var hit = cache.get(text)
-  if (hit) {
+  if (hit) {   // 如果缓存中存在对应的 text,则直接返回。
     return hit
   }
   if (!tagRE.test(text)) {
+    // tagRE 匹配失败，返回null;
     return null
   }
   var tokens = []
+  // RegExp.lastIndex 该属性存放一个整数， 声明的是上一次匹配文本之后的第一个字符的位置。
+  // reset 到 0；
   var lastIndex = tagRE.lastIndex = 0
   var match, index, html, value, first, oneTime
   /* eslint-disable no-cond-assign */
@@ -64,6 +72,7 @@ export function parseText (text) {
     index = match.index
     // push text token
     if (index > lastIndex) {
+      // 获取到 中间 未匹配的 tokens
       tokens.push({
         value: text.slice(lastIndex, index)
       })
@@ -71,24 +80,29 @@ export function parseText (text) {
     // tag token
     html = htmlRE.test(match[0])
     value = html ? match[1] : match[2]
-    first = value.charCodeAt(0)
+    first = value.charCodeAt(0)  // '*' 对应的UTF-16 代码单元值的数字。code
     oneTime = first === 42 // *
+    // 去除 * 字符。
     value = oneTime
       ? value.slice(1)
       : value
+    // 属性中 使用了 {{ }} 包裹的内容，保存到数组tokens中，tag: true；
     tokens.push({
       tag: true,
       value: value.trim(),
       html: html,
       oneTime: oneTime
     })
+    // 手动设置 lastIndex 为当前匹配序号加上 匹配的字符串的长度。
     lastIndex = index + match[0].length
   }
   if (lastIndex < text.length) {
+    // 把匹配完成后，剩余部分的text 内容保存到 tokens数组中。
     tokens.push({
       value: text.slice(lastIndex)
     })
   }
+  // 缓存在cache, 键值为 text 当前
   cache.put(text, tokens)
   return tokens
 }

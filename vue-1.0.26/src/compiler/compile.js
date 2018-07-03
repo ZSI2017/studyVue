@@ -190,6 +190,7 @@ export function compileAndLinkProps (vm, el, props, scope) {
 
 /**
  * Compile the root element of an instance.
+ * 提前编译根元素
  *
  * 1. attrs on context container (context scope)
  * 2. attrs on the component template root node, if
@@ -210,7 +211,7 @@ export function compileRoot (el, options, contextOptions) {
 
   // only need to compile other attributes for
   // non-fragment instances
-  if (el.nodeType !== 11) {
+  if (el.nodeType !== 11) { // 非 fragement 元素。
     // for components, container and replacer need to be
     // compiled separately and linked in different scopes.
     if (options._asComponent) {
@@ -672,12 +673,13 @@ function compileDirectives (attrs, options) {
     attr = attrs[i]
     name = rawName = attr.name
     value = rawValue = attr.value
-    tokens = parseText(value)
+    tokens = parseText(value)    // tokens 数组，保存着解析后的属性值，
+    // 识别出属性值里面被双括号包裹的内容
     // reset arg
     arg = null
     // check modifiers
-    modifiers = parseModifiers(name)
-    name = name.replace(modifierRE, '')
+    modifiers = parseModifiers(name)    //保存所有指令上的修饰符。
+    name = name.replace(modifierRE, '')  // 移除对应 属性名上 使用 .开头的修饰符。
 
     // attribute interpolations
     if (tokens) {
@@ -780,10 +782,10 @@ function compileDirectives (attrs, options) {
 
 function parseModifiers (name) {
   var res = Object.create(null)
-  var match = name.match(modifierRE)
+  var match = name.match(modifierRE) // 支持多个.xxx.xxx 修饰符嵌套使用
   if (match) {
     var i = match.length
-    while (i--) {
+    while (i--) { // 利用对象保存修饰符的 键值对。eg  res: {prevent: true}
       res[match[i].slice(1)] = true
     }
   }

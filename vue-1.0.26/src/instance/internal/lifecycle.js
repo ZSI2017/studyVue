@@ -64,7 +64,12 @@ export default function (Vue) {
     this._initElement(el)
 
     // handle v-pre on root node (#2026)
+    // If v-pre is used on the component's root element,
+    // Vue fails with the unhelpful message Failed to resolve directive: pre
+    // v-pre 指令，跳过该元素以及其子元素的编译。
+    // 通常使用该指令，来在页面中显示{{}} 双大括号。
     if (el.nodeType === 1 && getAttr(el, 'v-pre') !== null) {
+      // 代表元素，且元素上 有 ‘v-pre’ 属性。
       return
     }
 
@@ -127,14 +132,21 @@ export default function (Vue) {
       this._fragmentEnd = el.lastChild
       // set persisted text anchors to empty
       if (this._fragmentStart.nodeType === 3) {
+      // 判断这里的fragment firstchild 和 lastchild 的节点类型是否为 3
+      // 如果为3，表示元素 或 属性中的文本内容。
+      // 这里表示在 createAnchor 中 config.debug 被设置成了 false
+      // 进而导致创造的 anchor 为 createTextNode();
+      // 设置 anchor 为 '';
         this._fragmentStart.data = this._fragmentEnd.data = ''
       }
+      // 保存fragment 片段。
       this._fragment = el
     } else {
       this.$el = el
     }
     // __vue__ 上面挂在 vue 实例
     this.$el.__vue__ = this
+    // 调用 beforeCompile 钩子函数。
     this._callHook('beforeCompile')
   }
 
