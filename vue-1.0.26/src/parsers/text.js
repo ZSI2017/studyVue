@@ -111,7 +111,8 @@ export function parseText (text) {
  * Format a list of tokens into an expression.
  * e.g. tokens parsed from 'a {{b}} c' can be serialized
  * into one single expression as '"a " + b + " c"'.
- *
+ * 将一系类的tokens序列化为 表达式
+ * 'a{{b}}c' --> "a" + b + "c"
  * @param {Array} tokens
  * @param {Vue} [vm]
  * @return {String}
@@ -129,7 +130,9 @@ export function tokensToExp (tokens, vm) {
 
 /**
  * Format a single token.
- *
+ * 将 token 数组中的每一项，转换为表达式。
+ *    非tag: 直接进行字符串拼接
+ *     tag: 
  * @param {Object} token
  * @param {Vue} [vm]
  * @param {Boolean} [single]
