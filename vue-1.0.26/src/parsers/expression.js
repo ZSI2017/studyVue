@@ -132,12 +132,17 @@ function compileGetter (exp) {
  * We isolate the try/catch so it doesn't affect the
  * optimization of the parse function when it is not called.
  *
+ * Some environments, such as Google Chrome Apps, enforce Content Security Policy (CSP), which prohibits the use of new Function() for evaluating expressions.
+ *
+ * 在特殊环境下，粗暴的执行了内容安全限制，禁止使用 new Function() 来调用表达式。
  * @param {String} body
  * @return {Function|undefined}
  */
 
 function makeGetterFn (body) {
   try {
+    // 新建的function，scope 作为入参传入。
+    // body 中包含返回的 值。
     /* eslint-disable no-new-func */
     return new Function('scope', 'return ' + body + ';')
     /* eslint-enable no-new-func */
@@ -215,7 +220,9 @@ export function parseExpression (exp, needSet) {
 
 /**
  * Check if an expression is a simple path.
- *
+ *  test.value  test['value'] test["value"] test[ddd]
+ *  ! true false NaN 。。。
+ *  ! Math.PI Math.E;
  * @param {String} exp
  * @return {Boolean}
  */

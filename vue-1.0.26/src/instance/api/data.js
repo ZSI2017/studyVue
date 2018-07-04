@@ -94,7 +94,7 @@ export default function (Vue) {
     }
   }
 
-  /**
+  /** 执行一个 text 指令。 包括 过滤器。
    * Evaluate a text directive, including filters.
    *
    * @param {String} text
@@ -104,11 +104,13 @@ export default function (Vue) {
 
   Vue.prototype.$eval = function (text, asStatement) {
     // check for filters.
+    // attr = "some - {{thing | filter}}"
     if (filterRE.test(text)) {
       var dir = parseDirective(text)
       // the filter regex check might give false positive
       // for pipes inside strings, so it's possible that
       // we don't get any filters here
+      // 可能会被误报。
       var val = this.$get(dir.expression, asStatement)
       return dir.filters
         ? this._applyFilters(val, null, dir.filters)
