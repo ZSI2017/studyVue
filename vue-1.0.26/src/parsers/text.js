@@ -132,7 +132,7 @@ export function tokensToExp (tokens, vm) {
  * Format a single token.
  * 将 token 数组中的每一项，转换为表达式。
  *    非tag: 直接进行字符串拼接
- *     tag: 
+ *      tag:
  * @param {Object} token
  * @param {Vue} [vm]
  * @param {Boolean} [single]
@@ -140,6 +140,7 @@ export function tokensToExp (tokens, vm) {
  */
 
 function formatToken (token, vm, single) {
+  // oneTime = first === 42 *
   return token.tag
     ? token.oneTime && vm
       ? '"' + vm.$eval(token.value) + '"'
